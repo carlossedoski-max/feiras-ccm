@@ -189,7 +189,8 @@ export function fmtMoney(n?: number) {
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-export function exportCSV(filename: string, rows: Record<string, unknown>[]) {
+export function exportCSV(filename: string, rows: readonly Record<string, unknown>[] | readonly object[]) {
+  rows = rows as readonly Record<string, unknown>[];
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);
   const esc = (v: unknown) => {

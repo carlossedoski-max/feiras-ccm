@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FairsIndexRouteImport } from './routes/fairs.index'
+import { Route as FairsFairIdRouteImport } from './routes/fairs.$fairId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const FairsIndexRoute = FairsIndexRouteImport.update({
   path: '/fairs/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FairsFairIdRoute = FairsFairIdRouteImport.update({
+  id: '/fairs/$fairId',
+  path: '/fairs/$fairId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs/': typeof FairsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs': typeof FairsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs/': typeof FairsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/fairs/'
+  fullPaths: '/' | '/fairs/$fairId' | '/fairs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/fairs'
-  id: '__root__' | '/' | '/fairs/'
+  to: '/' | '/fairs/$fairId' | '/fairs'
+  id: '__root__' | '/' | '/fairs/$fairId' | '/fairs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FairsFairIdRoute: typeof FairsFairIdRoute
   FairsIndexRoute: typeof FairsIndexRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FairsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fairs/$fairId': {
+      id: '/fairs/$fairId'
+      path: '/fairs/$fairId'
+      fullPath: '/fairs/$fairId'
+      preLoaderRoute: typeof FairsFairIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FairsFairIdRoute: FairsFairIdRoute,
   FairsIndexRoute: FairsIndexRoute,
 }
 export const routeTree = rootRouteImport
