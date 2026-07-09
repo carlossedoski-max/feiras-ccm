@@ -92,7 +92,7 @@ function Dashboard() {
                   <p className="mt-1.5 text-2xl font-bold tabular-nums">{c.value}</p>
                 </div>
                 <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-md ${toneClasses[c.tone]}`}>
-                  <c.icon className="h-4.5 w-4.5" />
+                  <c.icon className="h-5 w-5" />
                 </div>
               </div>
             </CardContent>
