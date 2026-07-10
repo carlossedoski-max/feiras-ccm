@@ -1,13 +1,14 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Trash2, Download, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Download, FileText, Check } from "lucide-react";
 import {
-  useStore, actions, uid, fmtDate, fmtMoney, exportCSV, daysUntil,
+  useStore, actions, uid, fmtDate, fmtMoney, exportCSV, daysUntil, deadlineTone, toneClasses,
   FAIR_STATUSES, CHECKLIST_STATUSES, DOCUMENT_TYPES, DOCUMENT_STATUSES,
   COST_CATEGORIES, PAYMENT_STATUSES, CREDENTIAL_TYPES, CREDENTIAL_STATUSES,
   EXPO_TYPES, LOGISTIC_STATUSES, MATERIAL_CATEGORIES, MATERIAL_STATUSES, SUPPLIER_SERVICES,
+  PRIORITIES, RESPONSIBLE_SUGGESTIONS,
   type Fair, type ChecklistItem, type ChecklistPhase, type DocumentItem, type CostItem,
-  type CredentialItem, type ProductItem, type MaterialItem, type SupplierItem, type FairStatus,
+  type CredentialItem, type ProductItem, type MaterialItem, type SupplierItem, type FairStatus, type Priority,
 } from "@/lib/store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
