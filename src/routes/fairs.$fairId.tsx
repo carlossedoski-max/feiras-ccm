@@ -241,7 +241,7 @@ function ChecklistTab({ fair }: { fair: Fair }) {
               <div className="divide-y">
                 {items.length === 0 && <div className="p-5 text-sm text-muted-foreground text-center">Sem itens.</div>}
                 {items.map(item => {
-                  const overdue = item.deadline && item.status !== "Concluído" && item.status !== "Não se aplica" && new Date(item.deadline).getTime() < Date.now();
+                  const overdue = item.deadline && item.status !== "Concluído" && item.status !== "Não se aplica" && (daysUntil(item.deadline) ?? 1) < 0;
                   return (
                     <div key={item.id} className="grid gap-2 p-4 sm:grid-cols-[minmax(0,2fr)_140px_140px_140px_auto] items-center">
                       <Input value={item.title} onChange={e => updateItem(item.id, { title: e.target.value })} className="font-medium" />
