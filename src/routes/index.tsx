@@ -477,6 +477,3 @@ function WeeklySummaryDialog({ fairs, pendencies }: { fairs: Fair[]; pendencies:
     </DialogContent>
   );
 }
-
-// Suppress unused Input import if any tree-shaker complains
-export const _u = Input;
