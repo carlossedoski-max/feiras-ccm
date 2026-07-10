@@ -170,19 +170,29 @@ export const actions = {
   },
 };
 
-export function daysUntil(iso?: string): number | null {
+function parseLocalDate(iso?: string): Date | null {
   if (!iso) return null;
-  const d = new Date(iso).getTime();
-  if (Number.isNaN(d)) return null;
-  return Math.ceil((d - Date.now()) / 86400000);
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+export function daysUntil(iso?: string): number | null {
+  const d = parseLocalDate(iso);
+  if (!d) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.ceil((d.getTime() - today.getTime()) / 86400000);
 }
 
 export function fmtDate(iso?: string) {
   if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
+  const d = parseLocalDate(iso);
+  if (!d) return iso;
   return d.toLocaleDateString("pt-BR");
 }
+
 
 export function fmtMoney(n?: number) {
   if (n == null || Number.isNaN(n)) return "—";
