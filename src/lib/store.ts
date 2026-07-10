@@ -25,6 +25,13 @@ export type ChecklistPhase = "Antes da feira" | "Durante a feira" | "Depois da f
 export type ChecklistStatus = "Pendente" | "Em andamento" | "Concluído" | "Atrasado" | "Não se aplica";
 export const CHECKLIST_STATUSES: ChecklistStatus[] = ["Pendente", "Em andamento", "Concluído", "Atrasado", "Não se aplica"];
 
+export type Priority = "Baixa" | "Média" | "Alta" | "Urgente";
+export const PRIORITIES: Priority[] = ["Baixa", "Média", "Alta", "Urgente"];
+
+export const RESPONSIBLE_SUGGESTIONS = [
+  "Marketing", "Financeiro", "Comercial", "Logística", "Diretoria", "Fornecedor", "Organização do evento",
+];
+
 export interface ChecklistItem {
   id: string;
   phase: ChecklistPhase;
@@ -32,6 +39,7 @@ export interface ChecklistItem {
   status: ChecklistStatus;
   responsible?: string;
   deadline?: string;
+  priority?: Priority;
   notes?: string;
 }
 
@@ -103,23 +111,79 @@ export interface Fair {
   createdAt: string;
 }
 
-const DEFAULT_CHECKLIST: Array<{ phase: ChecklistPhase; title: string }> = [
-  ...["Solicitar proposta comercial","Avaliar valor do espaço","Aprovar participação","Receber contrato","Enviar contrato para assinatura","Confirmar pagamento da taxa","Solicitar nota fiscal/recibo","Solicitar credenciais","Definir equipe participante","Definir produtos para exposição","Separar materiais gráficos","Separar brindes","Organizar transporte dos produtos","Verificar montagem do espaço","Confirmar energia elétrica","Confirmar limpeza","Confirmar internet, se necessário"].map(title => ({ phase: "Antes da feira" as ChecklistPhase, title })),
-  ...["Conferir montagem do estande","Conferir produtos expostos","Conferir materiais impressos","Controlar leads recebidos","Registrar fotos e vídeos","Controlar brindes entregues","Acompanhar limpeza do espaço","Registrar problemas ocorridos"].map(title => ({ phase: "Durante a feira" as ChecklistPhase, title })),
-  ...["Recolher materiais","Conferir retorno dos produtos","Organizar fotos e vídeos","Exportar leads","Enviar leads ao comercial","Fazer relatório da feira","Conferir pagamentos pendentes","Arquivar contratos e notas","Registrar pontos de melhoria"].map(title => ({ phase: "Depois da feira" as ChecklistPhase, title })),
+// Default checklist template with suggested deadline (days before startDate) and priority.
+interface DefaultChecklistEntry { phase: ChecklistPhase; title: string; daysBefore: number; priority: Priority }
+const DEFAULT_CHECKLIST: DefaultChecklistEntry[] = [
+  // Antes da feira — offsets negativos = antes da data inicial
+  { phase: "Antes da feira", title: "Solicitar proposta comercial", daysBefore: 75, priority: "Alta" },
+  { phase: "Antes da feira", title: "Avaliar valor do espaço", daysBefore: 70, priority: "Média" },
+  { phase: "Antes da feira", title: "Confirmar participação", daysBefore: 60, priority: "Alta" },
+  { phase: "Antes da feira", title: "Receber contrato", daysBefore: 50, priority: "Alta" },
+  { phase: "Antes da feira", title: "Enviar contrato para assinatura", daysBefore: 47, priority: "Alta" },
+  { phase: "Antes da feira", title: "Pagamento da taxa do espaço", daysBefore: 45, priority: "Urgente" },
+  { phase: "Antes da feira", title: "Solicitar nota fiscal/recibo", daysBefore: 40, priority: "Média" },
+  { phase: "Antes da feira", title: "Definir equipe participante", daysBefore: 35, priority: "Média" },
+  { phase: "Antes da feira", title: "Solicitar credenciais", daysBefore: 30, priority: "Alta" },
+  { phase: "Antes da feira", title: "Definir produtos para exposição", daysBefore: 30, priority: "Alta" },
+  { phase: "Antes da feira", title: "Separar materiais gráficos", daysBefore: 30, priority: "Alta" },
+  { phase: "Antes da feira", title: "Separar brindes", daysBefore: 15, priority: "Média" },
+  { phase: "Antes da feira", title: "Organizar transporte dos produtos", daysBefore: 15, priority: "Alta" },
+  { phase: "Antes da feira", title: "Confirmar montagem do espaço", daysBefore: 15, priority: "Alta" },
+  { phase: "Antes da feira", title: "Confirmar energia elétrica", daysBefore: 15, priority: "Média" },
+  { phase: "Antes da feira", title: "Confirmar limpeza", daysBefore: 15, priority: "Média" },
+  { phase: "Antes da feira", title: "Confirmar internet, se necessário", daysBefore: 15, priority: "Baixa" },
+  { phase: "Antes da feira", title: "Conferência final", daysBefore: 7, priority: "Alta" },
+  { phase: "Antes da feira", title: "Montagem e organização do estande", daysBefore: 1, priority: "Urgente" },
+  // Durante — usar data inicial da feira
+  { phase: "Durante a feira", title: "Conferir montagem do estande", daysBefore: 0, priority: "Alta" },
+  { phase: "Durante a feira", title: "Conferir produtos expostos", daysBefore: 0, priority: "Alta" },
+  { phase: "Durante a feira", title: "Conferir materiais impressos", daysBefore: 0, priority: "Média" },
+  { phase: "Durante a feira", title: "Controlar leads recebidos", daysBefore: 0, priority: "Alta" },
+  { phase: "Durante a feira", title: "Registrar fotos e vídeos", daysBefore: 0, priority: "Média" },
+  { phase: "Durante a feira", title: "Controlar brindes entregues", daysBefore: 0, priority: "Baixa" },
+  { phase: "Durante a feira", title: "Acompanhar limpeza do espaço", daysBefore: 0, priority: "Baixa" },
+  { phase: "Durante a feira", title: "Registrar problemas ocorridos", daysBefore: 0, priority: "Média" },
+  // Depois — offsets positivos após a feira
+  { phase: "Depois da feira", title: "Recolher materiais", daysBefore: -1, priority: "Alta" },
+  { phase: "Depois da feira", title: "Conferir retorno dos produtos", daysBefore: -3, priority: "Alta" },
+  { phase: "Depois da feira", title: "Organizar fotos e vídeos", daysBefore: -5, priority: "Baixa" },
+  { phase: "Depois da feira", title: "Exportar leads", daysBefore: -3, priority: "Alta" },
+  { phase: "Depois da feira", title: "Enviar leads ao comercial", daysBefore: -5, priority: "Urgente" },
+  { phase: "Depois da feira", title: "Fazer relatório da feira", daysBefore: -10, priority: "Alta" },
+  { phase: "Depois da feira", title: "Conferir pagamentos pendentes", daysBefore: -7, priority: "Alta" },
+  { phase: "Depois da feira", title: "Arquivar contratos e notas", daysBefore: -14, priority: "Média" },
+  { phase: "Depois da feira", title: "Registrar pontos de melhoria", daysBefore: -14, priority: "Baixa" },
 ];
 
 export function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
 
-export function makeDefaultChecklist(): ChecklistItem[] {
-  return DEFAULT_CHECKLIST.map(({ phase, title }) => ({ id: uid(), phase, title, status: "Pendente" }));
+function toISODate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+}
+
+function addDays(base: Date, delta: number): Date {
+  const d = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+  d.setDate(d.getDate() + delta);
+  return d;
+}
+
+export function makeDefaultChecklist(startDate?: string): ChecklistItem[] {
+  const start = parseLocalDate(startDate);
+  return DEFAULT_CHECKLIST.map(({ phase, title, daysBefore, priority }) => {
+    const deadline = start ? toISODate(addDays(start, -daysBefore)) : undefined;
+    return { id: uid(), phase, title, status: "Pendente", priority, deadline };
+  });
 }
 
 export function createEmptyFair(partial: Partial<Fair> = {}): Fair {
+  const startDate = partial.startDate;
   return {
     id: uid(), name: "", year: new Date().getFullYear(), city: "", state: "",
     status: "Em análise",
-    checklist: makeDefaultChecklist(),
+    checklist: makeDefaultChecklist(startDate),
     documents: [], costs: [], credentials: [], products: [], materials: [], suppliers: [],
     report: {}, createdAt: new Date().toISOString(),
     ...partial,
@@ -170,6 +234,7 @@ export const actions = {
   },
 };
 
+// ---- Date helpers ----
 function parseLocalDate(iso?: string): Date | null {
   if (!iso) return null;
   const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -193,10 +258,54 @@ export function fmtDate(iso?: string) {
   return d.toLocaleDateString("pt-BR");
 }
 
-
 export function fmtMoney(n?: number) {
   if (n == null || Number.isNaN(n)) return "—";
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+/**
+ * Retorna um "tom" baseado no prazo e status:
+ * - done       → verde (concluído)
+ * - overdue    → vermelho (vencido)
+ * - soon       → amarelo (vence em ≤ 3 dias)
+ * - week       → azul (vence em ≤ 7 dias)
+ * - normal     → cinza
+ * - noDeadline → laranja/warning (sem prazo definido)
+ */
+export type DeadlineTone = "done" | "overdue" | "soon" | "week" | "normal" | "noDeadline";
+export function deadlineTone(iso: string | undefined, completed: boolean): DeadlineTone {
+  if (completed) return "done";
+  if (!iso) return "noDeadline";
+  const d = daysUntil(iso);
+  if (d == null) return "normal";
+  if (d < 0) return "overdue";
+  if (d <= 3) return "soon";
+  if (d <= 7) return "week";
+  return "normal";
+}
+
+export const toneClasses: Record<DeadlineTone, { pill: string; row: string; text: string; label: string }> = {
+  done:       { pill: "bg-success/15 text-success border-success/40",           row: "border-l-4 border-l-success",     text: "text-success",                     label: "Concluído" },
+  overdue:    { pill: "bg-destructive/15 text-destructive border-destructive/40", row: "border-l-4 border-l-destructive", text: "text-destructive font-semibold",  label: "Vencido" },
+  soon:       { pill: "bg-warning/20 text-warning-foreground border-warning/50", row: "border-l-4 border-l-warning",     text: "text-warning-foreground font-semibold", label: "≤ 3 dias" },
+  week:       { pill: "bg-info/15 text-info border-info/40",                     row: "border-l-4 border-l-info",        text: "text-info",                       label: "≤ 7 dias" },
+  normal:     { pill: "bg-muted text-muted-foreground border-border",            row: "border-l-4 border-l-transparent", text: "text-muted-foreground",           label: "No prazo" },
+  noDeadline: { pill: "bg-orange-500/15 text-orange-600 border-orange-500/40",   row: "border-l-4 border-l-orange-500",  text: "text-orange-600 font-semibold",   label: "Sem prazo" },
+};
+
+export function isThisWeek(iso?: string): boolean {
+  const d = parseLocalDate(iso);
+  if (!d) return false;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const day = now.getDay(); // 0 = domingo
+  const start = new Date(now); start.setDate(now.getDate() - day);
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  return d.getTime() >= start.getTime() && d.getTime() <= end.getTime();
+}
+
+export function isThisWeekCompleted(iso?: string): boolean {
+  return isThisWeek(iso);
 }
 
 export function exportCSV(filename: string, rowsIn: readonly object[]) {
