@@ -206,6 +206,8 @@ function Field({ label, value, onChange, edit, display, type = "text", className
 function ChecklistTab({ fair }: { fair: Fair }) {
   const phases: ChecklistPhase[] = ["Antes da feira", "Durante a feira", "Depois da feira"];
   const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [responsibleFilter, setResponsibleFilter] = useState("all");
 
   function updateItem(id: string, patch: Partial<ChecklistItem>) {
     actions.updateChild(fair.id, "checklist", list => list.map(i => i.id === id ? { ...i, ...patch } : i));
@@ -214,24 +216,57 @@ function ChecklistTab({ fair }: { fair: Fair }) {
     actions.updateChild(fair.id, "checklist", list => list.filter(i => i.id !== id));
   }
   function addItem(phase: ChecklistPhase) {
-    actions.updateChild(fair.id, "checklist", list => [...list, { id: uid(), phase, title: "Novo item", status: "Pendente" }]);
+    actions.updateChild(fair.id, "checklist", list => [...list, { id: uid(), phase, title: "Novo item", status: "Pendente", priority: "Média" }]);
   }
+
+  const responsibles = Array.from(new Set(fair.checklist.map(i => i.responsible).filter((v): v is string => !!v))).sort();
 
   return (
     <div className="space-y-4">
-      <Card><CardContent className="p-4 flex flex-wrap items-center gap-3">
-        <div className="text-sm text-muted-foreground">Filtrar por status:</div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            {CHECKLIST_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-          </SelectContent>
-        </Select>
+      <Card><CardContent className="p-4 grid gap-3 sm:grid-cols-3">
+        <div>
+          <Label className="text-xs text-muted-foreground">Status</Label>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {CHECKLIST_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-muted-foreground">Prioridade</Label>
+          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs text-muted-foreground">Responsável</Label>
+          <Select value={responsibleFilter} onValueChange={setResponsibleFilter}>
+            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {responsibles.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
       </CardContent></Card>
 
+      <datalist id="responsible-suggestions">
+        {RESPONSIBLE_SUGGESTIONS.map(s => <option key={s} value={s} />)}
+      </datalist>
+
       {phases.map(phase => {
-        const items = fair.checklist.filter(i => i.phase === phase && (statusFilter === "all" || i.status === statusFilter));
+        const items = fair.checklist.filter(i =>
+          i.phase === phase
+          && (statusFilter === "all" || i.status === statusFilter)
+          && (priorityFilter === "all" || i.priority === priorityFilter)
+          && (responsibleFilter === "all" || i.responsible === responsibleFilter)
+        );
         return (
           <Card key={phase}>
             <CardContent className="p-0">
@@ -242,16 +277,42 @@ function ChecklistTab({ fair }: { fair: Fair }) {
               <div className="divide-y">
                 {items.length === 0 && <div className="p-5 text-sm text-muted-foreground text-center">Sem itens.</div>}
                 {items.map(item => {
-                  const overdue = item.deadline && item.status !== "Concluído" && item.status !== "Não se aplica" && (daysUntil(item.deadline) ?? 1) < 0;
+                  const done = item.status === "Concluído" || item.status === "Não se aplica";
+                  const tone = deadlineTone(item.deadline, done);
+                  const t = toneClasses[tone];
                   return (
-                    <div key={item.id} className="grid gap-2 p-4 sm:grid-cols-[minmax(0,2fr)_140px_140px_140px_auto] items-center">
+                    <div key={item.id} className={`grid gap-2 p-4 sm:grid-cols-[minmax(0,2fr)_130px_150px_140px_120px_auto_auto] items-center ${t.row}`}>
                       <Input value={item.title} onChange={e => updateItem(item.id, { title: e.target.value })} className="font-medium" />
                       <Select value={item.status} onValueChange={v => updateItem(item.id, { status: v as ChecklistItem["status"] })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>{CHECKLIST_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                       </Select>
-                      <Input placeholder="Responsável" value={item.responsible ?? ""} onChange={e => updateItem(item.id, { responsible: e.target.value })} />
-                      <Input type="date" value={item.deadline ?? ""} onChange={e => updateItem(item.id, { deadline: e.target.value })} className={overdue ? "border-destructive text-destructive" : ""} />
+                      <Input
+                        list="responsible-suggestions"
+                        placeholder="Responsável"
+                        value={item.responsible ?? ""}
+                        onChange={e => updateItem(item.id, { responsible: e.target.value })}
+                      />
+                      <Input
+                        type="date"
+                        value={item.deadline ?? ""}
+                        onChange={e => updateItem(item.id, { deadline: e.target.value })}
+                        className={tone === "overdue" ? "border-destructive text-destructive" : tone === "noDeadline" && !done ? "border-orange-500" : ""}
+                      />
+                      <Select value={item.priority ?? "Média"} onValueChange={v => updateItem(item.id, { priority: v as Priority })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>{PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={done}
+                        onClick={() => updateItem(item.id, { status: "Concluído" })}
+                        className="h-8 text-success border-success/40 hover:bg-success/10 disabled:opacity-40"
+                        title={done ? "Já concluído" : "Marcar como concluído"}
+                      >
+                        <Check className="h-3.5 w-3.5" /> Concluir
+                      </Button>
                       <ConfirmDelete onDelete={() => removeItem(item.id)} />
                     </div>
                   );
