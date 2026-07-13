@@ -138,6 +138,7 @@ export interface Fair {
   materials: MaterialItem[];
   suppliers: SupplierItem[];
   report: FairReport;
+  manualAnalysis?: ManualAnalysis;
   createdAt: string;
 }
 
