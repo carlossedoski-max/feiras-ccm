@@ -84,6 +84,7 @@ function FairDetail() {
             <TabsTrigger value="products">Produtos</TabsTrigger>
             <TabsTrigger value="materials">Materiais e Brindes</TabsTrigger>
             <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
+            <TabsTrigger value="manual">Manual do Expositor — IA</TabsTrigger>
             <TabsTrigger value="report">Relatório Pós-Feira</TabsTrigger>
           </TabsList>
         </div>
