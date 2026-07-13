@@ -97,6 +97,7 @@ function FairDetail() {
         <TabsContent value="products"><ProductsTab fair={fair} /></TabsContent>
         <TabsContent value="materials"><MaterialsTab fair={fair} /></TabsContent>
         <TabsContent value="suppliers"><SuppliersTab fair={fair} /></TabsContent>
+        <TabsContent value="manual"><ManualTab fair={fair} /></TabsContent>
         <TabsContent value="report"><ReportTab fair={fair} /></TabsContent>
       </Tabs>
     </div>
