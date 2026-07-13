@@ -22,6 +22,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
+import { ManualTab } from "@/components/manual-tab";
 
 export const Route = createFileRoute("/fairs/$fairId")({
   loader: ({ params }) => ({ fairId: params.fairId }),
