@@ -22,6 +22,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
+import { ManualTab } from "@/components/manual-tab";
 
 export const Route = createFileRoute("/fairs/$fairId")({
   loader: ({ params }) => ({ fairId: params.fairId }),
@@ -83,6 +84,7 @@ function FairDetail() {
             <TabsTrigger value="products">Produtos</TabsTrigger>
             <TabsTrigger value="materials">Materiais e Brindes</TabsTrigger>
             <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
+            <TabsTrigger value="manual">Manual do Expositor — IA</TabsTrigger>
             <TabsTrigger value="report">Relatório Pós-Feira</TabsTrigger>
           </TabsList>
         </div>
@@ -95,6 +97,7 @@ function FairDetail() {
         <TabsContent value="products"><ProductsTab fair={fair} /></TabsContent>
         <TabsContent value="materials"><MaterialsTab fair={fair} /></TabsContent>
         <TabsContent value="suppliers"><SuppliersTab fair={fair} /></TabsContent>
+        <TabsContent value="manual"><ManualTab fair={fair} /></TabsContent>
         <TabsContent value="report"><ReportTab fair={fair} /></TabsContent>
       </Tabs>
     </div>

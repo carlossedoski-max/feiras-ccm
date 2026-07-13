@@ -41,6 +41,36 @@ export interface ChecklistItem {
   deadline?: string;
   priority?: Priority;
   notes?: string;
+  category?: string;
+  origin?: string;
+}
+
+export interface SuggestedTask {
+  id: string;
+  title: string;
+  description?: string;
+  deadline?: string;
+  priority: Priority;
+  category: string;
+  responsible?: string;
+}
+
+export interface ManualAnalysisDeadline { description: string; date?: string; importance?: string; consequence?: string }
+export interface ManualAnalysisFee { name: string; description?: string; estimatedValue?: string }
+export interface ManualAnalysis {
+  filename: string;
+  analyzedAt: string;
+  summary: string;
+  deadlines: ManualAnalysisDeadline[];
+  allowed: string[];
+  forbidden: string[];
+  fees: ManualAnalysisFee[];
+  documents: string[];
+  assemblyRules: string[];
+  disassemblyRules: string[];
+  attentionPoints: string[];
+  suggestedTasks: SuggestedTask[];
+  addedTaskIds: string[];
 }
 
 export const DOCUMENT_TYPES = ["Contrato","Termo de participação","Regulamento","Manual do expositor","Planta do estande","Nota fiscal","Recibo","Comprovante de pagamento","Orçamento","Autorização","Outro"] as const;
@@ -108,6 +138,7 @@ export interface Fair {
   materials: MaterialItem[];
   suppliers: SupplierItem[];
   report: FairReport;
+  manualAnalysis?: ManualAnalysis;
   createdAt: string;
 }
 
