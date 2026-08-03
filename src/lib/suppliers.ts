@@ -131,8 +131,6 @@ export async function addContactLog(input: Omit<SupplierContact, "id" | "created
     .insert({ ...input, created_by: userData.user?.id ?? null } as never);
   if (error) throw error;
 }
-  if (error) throw error;
-}
 
 export async function deleteContactLog(id: string) {
   const { error } = await supabase.from("supplier_contacts").delete().eq("id", id);
