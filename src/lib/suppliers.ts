@@ -94,21 +94,25 @@ export async function fetchAllContacts(): Promise<SupplierContact[]> {
 }
 
 export async function saveSupplier(input: SupplierInput, id?: string): Promise<Supplier> {
-  const payload = { ...input } as Record<string, unknown>;
   if (id) {
-    const { data, error } = await supabase.from("suppliers").update(payload).eq("id", id).select().single();
+    const { data, error } = await supabase
+      .from("suppliers")
+      .update(input as never)
+      .eq("id", id).select().single();
     if (error) throw error;
     return data as unknown as Supplier;
   }
   const { data: userData } = await supabase.auth.getUser();
-  payload["created_by"] = userData.user?.id ?? null;
-  const { data, error } = await supabase.from("suppliers").insert(payload).select().single();
+  const { data, error } = await supabase
+    .from("suppliers")
+    .insert({ ...input, created_by: userData.user?.id ?? null } as never)
+    .select().single();
   if (error) throw error;
   return data as unknown as Supplier;
 }
 
-export async function patchSupplier(id: string, patch: Record<string, unknown>) {
-  const { error } = await supabase.from("suppliers").update(patch).eq("id", id);
+export async function patchSupplier(id: string, patch: Partial<SupplierInput>) {
+  const { error } = await supabase.from("suppliers").update(patch as never).eq("id", id);
   if (error) throw error;
 }
 
@@ -124,7 +128,9 @@ export async function addContactLog(input: Omit<SupplierContact, "id" | "created
   const { data: userData } = await supabase.auth.getUser();
   const { error } = await supabase
     .from("supplier_contacts")
-    .insert({ ...input, created_by: userData.user?.id ?? null });
+    .insert({ ...input, created_by: userData.user?.id ?? null } as never);
+  if (error) throw error;
+}
   if (error) throw error;
 }
 
