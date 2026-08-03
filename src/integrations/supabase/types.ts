@@ -14,7 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      supplier_contacts: {
+        Row: {
+          channel: string
+          contact_date: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          next_action: string | null
+          responsible: string | null
+          supplier_id: string
+        }
+        Insert: {
+          channel?: string
+          contact_date?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          next_action?: string | null
+          responsible?: string | null
+          supplier_id: string
+        }
+        Update: {
+          channel?: string
+          contact_date?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          next_action?: string | null
+          responsible?: string | null
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_contacts_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          approved: string
+          attachment_name: string | null
+          attachment_path: string | null
+          attachment_type: string | null
+          attachment_uploaded_at: string | null
+          city: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          favorite: boolean
+          how_we_met: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          related_event: string | null
+          service_type: string
+          state: string | null
+          status: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          approved?: string
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_type?: string | null
+          attachment_uploaded_at?: string | null
+          city?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          favorite?: boolean
+          how_we_met?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          related_event?: string | null
+          service_type?: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          approved?: string
+          attachment_name?: string | null
+          attachment_path?: string | null
+          attachment_type?: string | null
+          attachment_uploaded_at?: string | null
+          city?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          favorite?: boolean
+          how_we_met?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          related_event?: string | null
+          service_type?: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
