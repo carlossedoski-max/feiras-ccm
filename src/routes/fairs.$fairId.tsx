@@ -23,6 +23,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ManualTab } from "@/components/manual-tab";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { fetchSuppliers, type Supplier as AuxSupplier } from "@/lib/suppliers";
 
 export const Route = createFileRoute("/fairs/$fairId")({
   loader: ({ params }) => ({ fairId: params.fairId }),
