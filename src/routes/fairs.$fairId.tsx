@@ -23,6 +23,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ManualTab } from "@/components/manual-tab";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { fetchSuppliers, type Supplier as AuxSupplier } from "@/lib/suppliers";
 
 export const Route = createFileRoute("/fairs/$fairId")({
   loader: ({ params }) => ({ fairId: params.fairId }),
@@ -503,23 +506,96 @@ function SuppliersTab({ fair }: { fair: Fair }) {
   const add = () => actions.updateChild(fair.id, "suppliers", l => [...l, { id: uid(), name: "Novo fornecedor", service: "Outro", value: 0, status: "Pendente" }]);
   const del = (id: string) => actions.updateChild(fair.id, "suppliers", l => l.filter(i => i.id !== id));
   return (
-    <TableCard title="Fornecedores" onAdd={add} onExport={() => exportCSV(`fornecedores-${fair.name}.csv`, fair.suppliers)}>
-      <ResponsiveTable headers={["Fornecedor", "Serviço", "Contato", "WhatsApp", "E-mail", "Valor", "Status", "Obs.", ""]}>
-        {fair.suppliers.map(s => (
-          <tr key={s.id} className="border-t align-middle">
-            <td className="p-2"><Input value={s.name} onChange={e => upd(s.id, { name: e.target.value })} /></td>
-            <td className="p-2"><Select value={s.service} onValueChange={v => upd(s.id, { service: v as SupplierItem["service"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{SUPPLIER_SERVICES.map(x => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></td>
-            <td className="p-2"><Input value={s.contact ?? ""} onChange={e => upd(s.id, { contact: e.target.value })} /></td>
-            <td className="p-2"><Input value={s.whatsapp ?? ""} onChange={e => upd(s.id, { whatsapp: e.target.value })} /></td>
-            <td className="p-2"><Input value={s.email ?? ""} onChange={e => upd(s.id, { email: e.target.value })} /></td>
-            <td className="p-2"><Input type="number" value={s.value} onChange={e => upd(s.id, { value: Number(e.target.value) })} className="w-28" /></td>
-            <td className="p-2"><Input value={s.status} onChange={e => upd(s.id, { status: e.target.value })} className="w-32" /></td>
-            <td className="p-2"><Input value={s.notes ?? ""} onChange={e => upd(s.id, { notes: e.target.value })} /></td>
-            <td className="p-2"><ConfirmDelete onDelete={() => del(s.id)} /></td>
-          </tr>
-        ))}
-      </ResponsiveTable>
-    </TableCard>
+    <div className="space-y-3">
+      <ImportFromAuxilio fair={fair} />
+      <TableCard title="Fornecedores" onAdd={add} onExport={() => exportCSV(`fornecedores-${fair.name}.csv`, fair.suppliers)}>
+        <ResponsiveTable headers={["Fornecedor", "Serviço", "Contato", "WhatsApp", "E-mail", "Valor", "Status", "Obs.", ""]}>
+          {fair.suppliers.map(s => (
+            <tr key={s.id} className="border-t align-middle">
+              <td className="p-2"><Input value={s.name} onChange={e => upd(s.id, { name: e.target.value })} /></td>
+              <td className="p-2"><Select value={s.service} onValueChange={v => upd(s.id, { service: v as SupplierItem["service"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{SUPPLIER_SERVICES.map(x => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></td>
+              <td className="p-2"><Input value={s.contact ?? ""} onChange={e => upd(s.id, { contact: e.target.value })} /></td>
+              <td className="p-2"><Input value={s.whatsapp ?? ""} onChange={e => upd(s.id, { whatsapp: e.target.value })} /></td>
+              <td className="p-2"><Input value={s.email ?? ""} onChange={e => upd(s.id, { email: e.target.value })} /></td>
+              <td className="p-2"><Input type="number" value={s.value} onChange={e => upd(s.id, { value: Number(e.target.value) })} className="w-28" /></td>
+              <td className="p-2"><Input value={s.status} onChange={e => upd(s.id, { status: e.target.value })} className="w-32" /></td>
+              <td className="p-2"><Input value={s.notes ?? ""} onChange={e => upd(s.id, { notes: e.target.value })} /></td>
+              <td className="p-2"><ConfirmDelete onDelete={() => del(s.id)} /></td>
+            </tr>
+          ))}
+        </ResponsiveTable>
+      </TableCard>
+    </div>
+  );
+}
+
+function ImportFromAuxilio({ fair }: { fair: Fair }) {
+  const [open, setOpen] = useState(false);
+  const [list, setList] = useState<AuxSupplier[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [q, setQ] = useState("");
+
+  async function load() {
+    setOpen(true);
+    setError(null);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) { setError("Entre na sua conta para acessar a base de fornecedores da aba Auxílio."); setList([]); return; }
+      setList(await fetchSuppliers());
+    } catch {
+      setError("Não foi possível carregar os fornecedores.");
+      setList([]);
+    }
+  }
+
+  function importOne(s: AuxSupplier) {
+    const service = (SUPPLIER_SERVICES as readonly string[]).includes(s.service_type)
+      ? (s.service_type as SupplierItem["service"]) : "Outro";
+    actions.updateChild(fair.id, "suppliers", l => [...l, {
+      id: uid(), name: s.name, service, contact: s.contact_name ?? "",
+      whatsapp: s.whatsapp ?? "", email: s.email ?? "", value: 0, status: s.status,
+    }]);
+    toast.success(`${s.name} importado para esta feira`);
+  }
+
+  const filtered = (list ?? []).filter(s =>
+    !q.trim() || [s.name, s.contact_name, s.service_type, s.city].some(v => (v ?? "").toLowerCase().includes(q.toLowerCase())));
+
+  return (
+    <>
+      <Button variant="outline" size="sm" onClick={load}>Importar do Auxílio</Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Importar fornecedor do Auxílio</DialogTitle>
+            <DialogDescription>Copia os dados do cadastro central para esta feira. O cadastro original continua intacto.</DialogDescription>
+          </DialogHeader>
+          {error ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">{error}</p>
+          ) : list === null ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Carregando…</p>
+          ) : (
+            <>
+              <Input placeholder="Buscar fornecedor" value={q} onChange={e => setQ(e.target.value)} />
+              <div className="space-y-2">
+                {filtered.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">Nenhum fornecedor encontrado.</p>}
+                {filtered.map(s => (
+                  <div key={s.id} className="flex items-center justify-between gap-3 rounded-md border p-2 text-sm">
+                    <div className="min-w-0">
+                      <div className="truncate font-medium">{s.name}</div>
+                      <div className="truncate text-xs text-muted-foreground">
+                        {s.service_type}{s.city ? ` · ${s.city}` : ""}{s.contact_name ? ` · ${s.contact_name}` : ""}
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={() => importOne(s)}>Importar</Button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
