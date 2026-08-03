@@ -9,10 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FairsIndexRouteImport } from './routes/fairs.index'
 import { Route as FairsFairIdRouteImport } from './routes/fairs.$fairId'
+import { Route as AuthenticatedAuxilioRouteImport } from './routes/_authenticated/auxilio'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -28,39 +40,74 @@ const FairsFairIdRoute = FairsFairIdRouteImport.update({
   path: '/fairs/$fairId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAuxilioRoute = AuthenticatedAuxilioRouteImport.update({
+  id: '/auxilio',
+  path: '/auxilio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/auxilio': typeof AuthenticatedAuxilioRoute
   '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs/': typeof FairsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/auxilio': typeof AuthenticatedAuxilioRoute
   '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs': typeof FairsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/auxilio': typeof AuthenticatedAuxilioRoute
   '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs/': typeof FairsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/fairs/$fairId' | '/fairs/'
+  fullPaths: '/' | '/auth' | '/auxilio' | '/fairs/$fairId' | '/fairs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/fairs/$fairId' | '/fairs'
-  id: '__root__' | '/' | '/fairs/$fairId' | '/fairs/'
+  to: '/' | '/auth' | '/auxilio' | '/fairs/$fairId' | '/fairs'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/auxilio'
+    | '/fairs/$fairId'
+    | '/fairs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   FairsFairIdRoute: typeof FairsFairIdRoute
   FairsIndexRoute: typeof FairsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -82,11 +129,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FairsFairIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/auxilio': {
+      id: '/_authenticated/auxilio'
+      path: '/auxilio'
+      fullPath: '/auxilio'
+      preLoaderRoute: typeof AuthenticatedAuxilioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAuxilioRoute: typeof AuthenticatedAuxilioRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAuxilioRoute: AuthenticatedAuxilioRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   FairsFairIdRoute: FairsFairIdRoute,
   FairsIndexRoute: FairsIndexRoute,
 }

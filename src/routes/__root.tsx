@@ -87,6 +87,36 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function AuthButton() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  if (loading) return null;
+  if (!user) {
+    return (
+      <Link to="/auth" className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+        <LogIn className="h-4 w-4" /><span className="hidden sm:inline">Entrar</span>
+      </Link>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <span className="hidden max-w-[160px] truncate text-xs text-sidebar-foreground/60 md:inline">{user.email}</span>
+      <button
+        onClick={async () => {
+          await queryClient.cancelQueries();
+          queryClient.clear();
+          await supabase.auth.signOut();
+          navigate({ to: "/auth", replace: true });
+        }}
+        className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+      >
+        <LogOut className="h-4 w-4" /><span className="hidden sm:inline">Sair</span>
+      </button>
+    </div>
+  );
+}
+
 function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
@@ -106,7 +136,11 @@ function AppShell({ children }: { children: ReactNode }) {
             <Link to="/fairs" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Feiras e Eventos</span>
             </Link>
+            <Link to="/auxilio" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+              <LifeBuoy className="h-4 w-4" /><span className="hidden sm:inline">Auxílio</span>
+            </Link>
           </nav>
+          <div className="ml-auto"><AuthButton /></div>
         </div>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
