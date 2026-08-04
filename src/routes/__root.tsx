@@ -139,6 +139,9 @@ function AppShell({ children }: { children: ReactNode }) {
             <Link to="/fairs" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Feiras e Eventos</span>
             </Link>
+            <Link to="/projetos-imagem" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+              <Images className="h-4 w-4" /><span className="hidden sm:inline">Projetos por Imagem</span>
+            </Link>
             <Link to="/auxilio" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <LifeBuoy className="h-4 w-4" /><span className="hidden sm:inline">Auxílio</span>
             </Link>
