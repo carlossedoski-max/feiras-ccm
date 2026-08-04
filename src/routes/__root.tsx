@@ -9,7 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut } from "lucide-react";
+import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut, Images } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -72,7 +72,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,
@@ -138,6 +138,9 @@ function AppShell({ children }: { children: ReactNode }) {
             </Link>
             <Link to="/fairs" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Feiras e Eventos</span>
+            </Link>
+            <Link to="/projetos-imagem" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+              <Images className="h-4 w-4" /><span className="hidden sm:inline">Projetos por Imagem</span>
             </Link>
             <Link to="/auxilio" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <LifeBuoy className="h-4 w-4" /><span className="hidden sm:inline">Auxílio</span>

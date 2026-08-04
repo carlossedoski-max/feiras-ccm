@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      image_projects: {
+        Row: {
+          analysis: Json | null
+          briefing: string | null
+          checklist: Json | null
+          city: string | null
+          comparison: Json | null
+          complexity: string | null
+          complexity_reason: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          images: Json
+          name: string
+          notes: string | null
+          objective: string | null
+          quote_summary: string | null
+          reference_year: string | null
+          related_fair: string | null
+          responsible: string | null
+          state: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          analysis?: Json | null
+          briefing?: string | null
+          checklist?: Json | null
+          city?: string | null
+          comparison?: Json | null
+          complexity?: string | null
+          complexity_reason?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          images?: Json
+          name: string
+          notes?: string | null
+          objective?: string | null
+          quote_summary?: string | null
+          reference_year?: string | null
+          related_fair?: string | null
+          responsible?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          analysis?: Json | null
+          briefing?: string | null
+          checklist?: Json | null
+          city?: string | null
+          comparison?: Json | null
+          complexity?: string | null
+          complexity_reason?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          images?: Json
+          name?: string
+          notes?: string | null
+          objective?: string | null
+          quote_summary?: string | null
+          reference_year?: string | null
+          related_fair?: string | null
+          responsible?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       supplier_contacts: {
         Row: {
           channel: string
