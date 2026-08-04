@@ -574,7 +574,7 @@ function ImagesTab({
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
-  useMemo(() => {
+  useEffect(() => {
     (async () => {
       const next: Record<string, string> = {};
       for (const img of project.images ?? []) {
