@@ -1,0 +1,4 @@
+CREATE POLICY "Authenticated can read project images" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'project-images');
+CREATE POLICY "Authenticated can upload project images" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'project-images');
+CREATE POLICY "Authenticated can update project images" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'project-images') WITH CHECK (bucket_id = 'project-images');
+CREATE POLICY "Authenticated can delete project images" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'project-images');
