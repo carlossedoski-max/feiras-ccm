@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FairsIndexRouteImport } from './routes/fairs.index'
 import { Route as FairsFairIdRouteImport } from './routes/fairs.$fairId'
+import { Route as AuthenticatedProjetosImagemRouteImport } from './routes/_authenticated/projetos-imagem'
 import { Route as AuthenticatedAuxilioRouteImport } from './routes/_authenticated/auxilio'
 
 const AuthRoute = AuthRouteImport.update({
@@ -40,6 +41,12 @@ const FairsFairIdRoute = FairsFairIdRouteImport.update({
   path: '/fairs/$fairId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedProjetosImagemRoute =
+  AuthenticatedProjetosImagemRouteImport.update({
+    id: '/projetos-imagem',
+    path: '/projetos-imagem',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAuxilioRoute = AuthenticatedAuxilioRouteImport.update({
   id: '/auxilio',
   path: '/auxilio',
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/auxilio': typeof AuthenticatedAuxilioRoute
+  '/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs/': typeof FairsIndexRoute
 }
@@ -57,6 +65,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/auxilio': typeof AuthenticatedAuxilioRoute
+  '/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs': typeof FairsIndexRoute
 }
@@ -66,20 +75,34 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/auxilio': typeof AuthenticatedAuxilioRoute
+  '/_authenticated/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/fairs/$fairId': typeof FairsFairIdRoute
   '/fairs/': typeof FairsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/auxilio' | '/fairs/$fairId' | '/fairs/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/auxilio'
+    | '/projetos-imagem'
+    | '/fairs/$fairId'
+    | '/fairs/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/auxilio' | '/fairs/$fairId' | '/fairs'
+  to:
+    | '/'
+    | '/auth'
+    | '/auxilio'
+    | '/projetos-imagem'
+    | '/fairs/$fairId'
+    | '/fairs'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/auxilio'
+    | '/_authenticated/projetos-imagem'
     | '/fairs/$fairId'
     | '/fairs/'
   fileRoutesById: FileRoutesById
@@ -129,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FairsFairIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/projetos-imagem': {
+      id: '/_authenticated/projetos-imagem'
+      path: '/projetos-imagem'
+      fullPath: '/projetos-imagem'
+      preLoaderRoute: typeof AuthenticatedProjetosImagemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/auxilio': {
       id: '/_authenticated/auxilio'
       path: '/auxilio'
@@ -141,10 +171,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuxilioRoute: typeof AuthenticatedAuxilioRoute
+  AuthenticatedProjetosImagemRoute: typeof AuthenticatedProjetosImagemRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuxilioRoute: AuthenticatedAuxilioRoute,
+  AuthenticatedProjetosImagemRoute: AuthenticatedProjetosImagemRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
