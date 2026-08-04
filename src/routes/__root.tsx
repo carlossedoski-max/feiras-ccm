@@ -9,7 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut } from "lucide-react";
+import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut, Images } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
