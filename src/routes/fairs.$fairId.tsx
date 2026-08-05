@@ -540,7 +540,7 @@ function ImportFromAuxilio({ fair }: { fair: Fair }) {
     setError(null);
     try {
       const { data: session } = await supabase.auth.getSession();
-      if (!session.session) { setError("Entre na sua conta para acessar a base de fornecedores da aba Auxílio."); setList([]); return; }
+      if (!session.session) { setError("Entre na sua conta para acessar a base de fornecedores da aba Fornecedores."); setList([]); return; }
       setList(await fetchSuppliers());
     } catch {
       setError("Não foi possível carregar os fornecedores.");
@@ -563,11 +563,11 @@ function ImportFromAuxilio({ fair }: { fair: Fair }) {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={load}>Importar do Auxílio</Button>
+      <Button variant="outline" size="sm" onClick={load}>Importar do cadastro</Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Importar fornecedor do Auxílio</DialogTitle>
+            <DialogTitle>Importar fornecedor do cadastro</DialogTitle>
             <DialogDescription>Copia os dados do cadastro central para esta feira. O cadastro original continua intacto.</DialogDescription>
           </DialogHeader>
           {error ? (
