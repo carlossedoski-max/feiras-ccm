@@ -30,7 +30,7 @@ import {
 } from "@/lib/project-renders";
 import { generateConceptImage } from "@/lib/project-image.functions";
 import { fetchSuppliers, type Supplier } from "@/lib/suppliers";
-import { createEmptyFair, store } from "@/lib/store";
+import { actions, createEmptyFair } from "@/lib/store";
 
 const NONE = "__none__";
 
@@ -473,7 +473,7 @@ function ReuseFairButton({ project }: { project: ImageProject }) {
       state: project.state ?? "",
       notes,
     });
-    store.addFair(fair);
+    actions.addFair(fair);
     setOpen(false);
     toast.success("Nova feira criada a partir deste projeto.");
   }
