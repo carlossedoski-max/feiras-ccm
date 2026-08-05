@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ConceptImageTab } from "@/components/concept-image-tab";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -416,6 +417,7 @@ function ProjectDetail({ project, onBack }: { project: ImageProject; onBack: () 
           <TabsTrigger value="checklist">Checklist</TabsTrigger>
           <TabsTrigger value="cotacao">Cotação</TabsTrigger>
           <TabsTrigger value="comparativo">Comparativo</TabsTrigger>
+          <TabsTrigger value="imagem-conceitual">Imagem Conceitual</TabsTrigger>
         </TabsList>
 
         <TabsContent value="imagens" className="mt-4">
@@ -560,6 +562,10 @@ function ProjectDetail({ project, onBack }: { project: ImageProject; onBack: () 
               <ListBlock title="Ideias para reduzir custo" items={project.comparison.costIdeas} tone="good" />
             </>
           )}
+        </TabsContent>
+
+        <TabsContent value="imagem-conceitual" className="mt-4">
+          <ConceptImageTab project={project} briefing={briefingDraft} onBriefingChange={setBriefingDraft} />
         </TabsContent>
       </Tabs>
     </div>

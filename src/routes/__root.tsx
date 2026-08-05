@@ -143,7 +143,7 @@ function AppShell({ children }: { children: ReactNode }) {
               <Images className="h-4 w-4" /><span className="hidden sm:inline">Projetos por Imagem</span>
             </Link>
             <Link to="/auxilio" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-              <LifeBuoy className="h-4 w-4" /><span className="hidden sm:inline">Auxílio</span>
+              <LifeBuoy className="h-4 w-4" /><span className="hidden sm:inline">Fornecedores</span>
             </Link>
           </nav>
           <div className="ml-auto"><AuthButton /></div>

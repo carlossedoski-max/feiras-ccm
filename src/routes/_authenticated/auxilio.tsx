@@ -32,9 +32,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/auxilio")({
   head: () => ({
     meta: [
-      { title: "Auxílio — Fornecedores | CCM Feira Control" },
+      { title: "Fornecedores | CCM Feira Control" },
       { name: "description", content: "Cadastro rápido de fornecedores de feiras: contatos, orçamentos, anexos de cartões e histórico de negociação da CCM do Brasil." },
-      { property: "og:title", content: "Auxílio — Fornecedores | CCM Feira Control" },
+      { property: "og:title", content: "Fornecedores | CCM Feira Control" },
       { property: "og:description", content: "Cadastro rápido de fornecedores de feiras: contatos, orçamentos, anexos e histórico de negociação." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -176,7 +176,7 @@ function AuxilioPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Auxílio</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">Fornecedores</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Informações úteis do dia a dia do marketing. Aqui fica a base central de fornecedores, reaproveitável em todas as feiras.
           </p>

@@ -5,11 +5,13 @@ export const PROJECT_BUCKET = "project-images";
 export const PROJECT_STATUSES = [
   "Rascunho",
   "Em análise",
+  "Aguardando ajustes",
+  "Aprovado internamente",
   "Enviado para montadora",
   "Aguardando orçamento",
-  "Aprovado",
   "Arquivado",
 ] as const;
+
 
 export const COMPLEXITY_LEVELS = ["Simples", "Intermediário", "Complexo", "Premium"] as const;
 
@@ -76,9 +78,20 @@ export interface ImageProject {
   comparison: ProjectAnalysis["comparison"] | null;
   complexity: string | null;
   complexity_reason: string | null;
+  target_budget: string | null;
+  budget_tier: string | null;
+  main_brand: string | null;
+  fair_type: string | null;
+  required_items: string[];
+  supplier_id: string | null;
+  supplier_sent_at: string | null;
+  quote_status: string | null;
+  estimated_value: number | null;
+  supplier_notes: string | null;
   created_at: string;
   updated_at: string;
 }
+
 
 export type ImageProjectInput = Partial<Omit<ImageProject, "id" | "created_at" | "updated_at">> & {
   name: string;
