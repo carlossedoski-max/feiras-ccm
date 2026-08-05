@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           analysis: Json | null
           briefing: string | null
+          budget_tier: string | null
           checklist: Json | null
           city: string | null
           comparison: Json | null
@@ -25,22 +26,32 @@ export type Database = {
           complexity_reason: string | null
           created_at: string
           created_by: string | null
+          estimated_value: number | null
+          fair_type: string | null
           id: string
           images: Json
+          main_brand: string | null
           name: string
           notes: string | null
           objective: string | null
+          quote_status: string | null
           quote_summary: string | null
           reference_year: string | null
           related_fair: string | null
+          required_items: Json
           responsible: string | null
           state: string | null
           status: string
+          supplier_id: string | null
+          supplier_notes: string | null
+          supplier_sent_at: string | null
+          target_budget: string | null
           updated_at: string
         }
         Insert: {
           analysis?: Json | null
           briefing?: string | null
+          budget_tier?: string | null
           checklist?: Json | null
           city?: string | null
           comparison?: Json | null
@@ -48,22 +59,32 @@ export type Database = {
           complexity_reason?: string | null
           created_at?: string
           created_by?: string | null
+          estimated_value?: number | null
+          fair_type?: string | null
           id?: string
           images?: Json
+          main_brand?: string | null
           name: string
           notes?: string | null
           objective?: string | null
+          quote_status?: string | null
           quote_summary?: string | null
           reference_year?: string | null
           related_fair?: string | null
+          required_items?: Json
           responsible?: string | null
           state?: string | null
           status?: string
+          supplier_id?: string | null
+          supplier_notes?: string | null
+          supplier_sent_at?: string | null
+          target_budget?: string | null
           updated_at?: string
         }
         Update: {
           analysis?: Json | null
           briefing?: string | null
+          budget_tier?: string | null
           checklist?: Json | null
           city?: string | null
           comparison?: Json | null
@@ -71,20 +92,132 @@ export type Database = {
           complexity_reason?: string | null
           created_at?: string
           created_by?: string | null
+          estimated_value?: number | null
+          fair_type?: string | null
           id?: string
           images?: Json
+          main_brand?: string | null
           name?: string
           notes?: string | null
           objective?: string | null
+          quote_status?: string | null
           quote_summary?: string | null
           reference_year?: string | null
           related_fair?: string | null
+          required_items?: Json
           responsible?: string | null
           state?: string | null
           status?: string
+          supplier_id?: string | null
+          supplier_notes?: string | null
+          supplier_sent_at?: string | null
+          target_budget?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "image_projects_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_renders: {
+        Row: {
+          ai_items: Json
+          ambience: string | null
+          briefing: string | null
+          budget_tier: string | null
+          city: string | null
+          created_at: string
+          created_by: string | null
+          defined_items: Json
+          fair_type: string | null
+          id: string
+          image_path: string
+          image_type: string
+          label: string
+          main_brand: string | null
+          notes: string | null
+          period: string | null
+          project_id: string
+          prompt: string | null
+          required_items: Json
+          responsible: string | null
+          state: string | null
+          status: string
+          style: string | null
+          target_budget: string | null
+          version: number
+          visual_summary: string | null
+        }
+        Insert: {
+          ai_items?: Json
+          ambience?: string | null
+          briefing?: string | null
+          budget_tier?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          defined_items?: Json
+          fair_type?: string | null
+          id?: string
+          image_path: string
+          image_type?: string
+          label?: string
+          main_brand?: string | null
+          notes?: string | null
+          period?: string | null
+          project_id: string
+          prompt?: string | null
+          required_items?: Json
+          responsible?: string | null
+          state?: string | null
+          status?: string
+          style?: string | null
+          target_budget?: string | null
+          version?: number
+          visual_summary?: string | null
+        }
+        Update: {
+          ai_items?: Json
+          ambience?: string | null
+          briefing?: string | null
+          budget_tier?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          defined_items?: Json
+          fair_type?: string | null
+          id?: string
+          image_path?: string
+          image_type?: string
+          label?: string
+          main_brand?: string | null
+          notes?: string | null
+          period?: string | null
+          project_id?: string
+          prompt?: string | null
+          required_items?: Json
+          responsible?: string | null
+          state?: string | null
+          status?: string
+          style?: string | null
+          target_budget?: string | null
+          version?: number
+          visual_summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_renders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "image_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       supplier_contacts: {
         Row: {
