@@ -5,11 +5,13 @@ export const PROJECT_BUCKET = "project-images";
 export const PROJECT_STATUSES = [
   "Rascunho",
   "Em análise",
+  "Aguardando ajustes",
+  "Aprovado internamente",
   "Enviado para montadora",
   "Aguardando orçamento",
-  "Aprovado",
   "Arquivado",
 ] as const;
+
 
 export const COMPLEXITY_LEVELS = ["Simples", "Intermediário", "Complexo", "Premium"] as const;
 
