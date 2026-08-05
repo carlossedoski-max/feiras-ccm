@@ -416,6 +416,7 @@ function ProjectDetail({ project, onBack }: { project: ImageProject; onBack: () 
           <TabsTrigger value="checklist">Checklist</TabsTrigger>
           <TabsTrigger value="cotacao">Cotação</TabsTrigger>
           <TabsTrigger value="comparativo">Comparativo</TabsTrigger>
+          <TabsTrigger value="imagem-conceitual">Imagem Conceitual</TabsTrigger>
         </TabsList>
 
         <TabsContent value="imagens" className="mt-4">
