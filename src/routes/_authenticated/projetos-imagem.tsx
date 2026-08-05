@@ -562,6 +562,10 @@ function ProjectDetail({ project, onBack }: { project: ImageProject; onBack: () 
             </>
           )}
         </TabsContent>
+
+        <TabsContent value="imagem-conceitual" className="mt-4">
+          <ConceptImageTab project={project} briefing={briefingDraft} onBriefingChange={setBriefingDraft} />
+        </TabsContent>
       </Tabs>
     </div>
   );
