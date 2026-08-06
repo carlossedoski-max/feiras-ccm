@@ -56,6 +56,8 @@ export function ConceptImageTab({
   const [fairType, setFairType] = useState<string>(project.fair_type ?? "");
   const [mainBrand, setMainBrand] = useState<string>(project.main_brand ?? "CCM do Brasil / Kawashima");
   const [extraNotes, setExtraNotes] = useState("");
+  const [brandFidelity, setBrandFidelity] = useState<string>(BRAND_FIDELITY[0]);
+  const [promptPreview, setPromptPreview] = useState<{ prompt: string; summary: string } | null>(null);
   const [required, setRequired] = useState<string[]>(project.required_items ?? []);
   const [responsible, setResponsible] = useState(project.responsible ?? "Marketing");
 
