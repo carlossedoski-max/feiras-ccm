@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { StatusBadge } from "@/components/status-badge";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/fairs/")({
+export const Route = createFileRoute("/_authenticated/fairs/")({
   head: () => ({ meta: [{ title: "Feiras e Eventos — CCM Feira Control" }] }),
   component: FairsList,
 });

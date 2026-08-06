@@ -27,7 +27,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { supabase } from "@/integrations/supabase/client";
 import { fetchSuppliers, type Supplier as AuxSupplier } from "@/lib/suppliers";
 
-export const Route = createFileRoute("/fairs/$fairId")({
+export const Route = createFileRoute("/_authenticated/fairs/$fairId")({
   loader: ({ params }) => ({ fairId: params.fairId }),
   head: () => ({ meta: [{ title: "Ficha da feira — CCM Feira Control" }] }),
   component: FairDetail,

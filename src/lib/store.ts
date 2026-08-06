@@ -186,7 +186,10 @@ const DEFAULT_CHECKLIST: DefaultChecklistEntry[] = [
   { phase: "Depois da feira", title: "Registrar pontos de melhoria", daysBefore: -14, priority: "Baixa" },
 ];
 
-export function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+export function uid() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
 
 function toISODate(d: Date): string {
   const y = d.getFullYear();
