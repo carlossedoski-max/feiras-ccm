@@ -125,6 +125,29 @@ export interface FairReport {
   photos?: string; worthAgain?: "Sim" | "Não" | "Avaliar melhor"; finalNotes?: string;
 }
 
+export type ReadinessAnswer = "Sim" | "Não" | "Não se aplica";
+export type ReadinessStatus =
+  | "Não pronta"
+  | "Em atenção"
+  | "Pronta para envio"
+  | "Pronta para execução"
+  | "Finalizada";
+export const READINESS_STATUSES: ReadinessStatus[] = [
+  "Não pronta", "Em atenção", "Pronta para envio", "Pronta para execução", "Finalizada",
+];
+export interface ReadinessEntry {
+  answer?: ReadinessAnswer;
+  responsible?: string;
+  note?: string;
+}
+export interface ReadinessState {
+  items?: Record<string, ReadinessEntry>;
+  status?: ReadinessStatus;
+  confirmedAt?: string;
+  confirmedBy?: string;
+  notes?: string;
+}
+
 export interface Fair {
   id: string; name: string; year: number; city: string; state: string; venue?: string;
   startDate?: string; endDate?: string; status: FairStatus;
@@ -139,6 +162,7 @@ export interface Fair {
   suppliers: SupplierItem[];
   report: FairReport;
   manualAnalysis?: ManualAnalysis;
+  readiness?: ReadinessState;
   createdAt: string;
 }
 
