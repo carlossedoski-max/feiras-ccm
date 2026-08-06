@@ -80,6 +80,7 @@ function FairDetail() {
         <div className="overflow-x-auto -mx-4 px-4">
           <TabsList className="inline-flex h-auto flex-nowrap">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="readiness">Feira pronta?</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
             <TabsTrigger value="documents">Contratos</TabsTrigger>
             <TabsTrigger value="costs">Taxas e Custos</TabsTrigger>
