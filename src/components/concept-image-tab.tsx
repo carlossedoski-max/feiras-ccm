@@ -23,7 +23,7 @@ import {
   downloadDoc, patchProject, projectSignedUrl, type ImageProject,
 } from "@/lib/image-projects";
 import {
-  AMBIENCES, BUDGET_TIERS, IMAGE_STYLES, PERIODS, QUOTE_STATUSES, REQUIRED_ITEMS,
+  AMBIENCES, BRAND_FIDELITY, BUDGET_TIERS, IMAGE_STYLES, PERIODS, QUOTE_STATUSES, REQUIRED_ITEMS,
   TARGET_BUDGETS, VARIATIONS, VERSION_STATUSES,
   deleteRender, fetchRenders, insertRender, patchRender, renderToText, supplierMessage,
   type ProjectRender,
