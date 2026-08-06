@@ -116,6 +116,17 @@ ${data.variationHint ? `- Ajuste desta variação: ${data.variationHint}` : ""}`
     const imagePrompt = String(plan['imagePrompt'] ?? "").trim();
     if (!imagePrompt) throw new Error("A IA não conseguiu montar o prompt visual.");
 
+    if (data.promptOnly) {
+      return {
+        imagePath: "",
+        prompt: imagePrompt,
+        definedItems: arr(plan['definedItems']),
+        aiItems: arr(plan['aiItems']),
+        visualSummary: String(plan['visualSummary'] ?? ""),
+        userId: context.userId,
+      };
+    }
+
     const imgRes = await fetch(`${GATEWAY}/images/generations`, {
       method: "POST",
       headers: headers(key),
