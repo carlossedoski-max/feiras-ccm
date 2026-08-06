@@ -92,6 +92,7 @@ Opções escolhidas:
 - Cidade/UF: ${[data.city, data.state].filter(Boolean).join("/") || "não informado"}
 - Marca principal: ${data.mainBrand || "CCM do Brasil / Kawashima"}
 - Itens obrigatórios: ${data.requiredItems.length ? data.requiredItems.join(", ") : "nenhum marcado"}
+- Fidelidade de marca: ${data.brandFidelity}
 - Observações extras: ${data.extraNotes || "—"}
 ${data.variationHint ? `- Ajuste desta variação: ${data.variationHint}` : ""}`;
 
