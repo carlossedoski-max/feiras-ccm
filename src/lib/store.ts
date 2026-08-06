@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 export type FairStatus =
   | "Em análise"
@@ -125,6 +125,31 @@ export interface FairReport {
   photos?: string; worthAgain?: "Sim" | "Não" | "Avaliar melhor"; finalNotes?: string;
 }
 
+export type ReadinessAnswer = "Sim" | "Não" | "Não se aplica";
+export type ReadinessStatus =
+  | "Não pronta"
+  | "Em atenção"
+  | "Pronta para envio"
+  | "Pronta para execução"
+  | "Finalizada";
+export const READINESS_STATUSES: ReadinessStatus[] = [
+  "Não pronta", "Em atenção", "Pronta para envio", "Pronta para execução", "Finalizada",
+];
+export interface ReadinessEntry {
+  answer?: ReadinessAnswer;
+  responsible?: string;
+  note?: string;
+  filePath?: string;
+  fileName?: string;
+}
+export interface ReadinessState {
+  items?: Record<string, ReadinessEntry>;
+  status?: ReadinessStatus;
+  confirmedAt?: string;
+  confirmedBy?: string;
+  notes?: string;
+}
+
 export interface Fair {
   id: string; name: string; year: number; city: string; state: string; venue?: string;
   startDate?: string; endDate?: string; status: FairStatus;
@@ -139,6 +164,7 @@ export interface Fair {
   suppliers: SupplierItem[];
   report: FairReport;
   manualAnalysis?: ManualAnalysis;
+  readiness?: ReadinessState;
   createdAt: string;
 }
 
@@ -186,7 +212,10 @@ const DEFAULT_CHECKLIST: DefaultChecklistEntry[] = [
   { phase: "Depois da feira", title: "Registrar pontos de melhoria", daysBefore: -14, priority: "Baixa" },
 ];
 
-export function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+export function uid() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
 
 function toISODate(d: Date): string {
   const y = d.getFullYear();
@@ -221,47 +250,174 @@ export function createEmptyFair(partial: Partial<Fair> = {}): Fair {
   };
 }
 
-// ---- Store ----
-const KEY = "ccm-feira-control:v1";
-type State = { fairs: Fair[] };
+// ---- Store (banco de dados online) ----
+const LEGACY_KEY = "ccm-feira-control:v1";
+type State = { fairs: Fair[]; loading: boolean; error: string | null };
 const listeners = new Set<() => void>();
-let state: State = load();
+let state: State = { fairs: [], loading: true, error: null };
 let snapshot: State = state;
 
-function load(): State {
-  if (typeof window === "undefined") return { fairs: [] };
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as State;
-  } catch {}
-  return { fairs: [] };
-}
-function persist() {
-  if (typeof window === "undefined") return;
-  try { window.localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
-}
 function emit() {
   snapshot = { ...state, fairs: [...state.fairs] };
-  persist();
-  listeners.forEach(l => l());
+  listeners.forEach((l) => l());
 }
 function subscribe(l: () => void) { listeners.add(l); return () => listeners.delete(l); }
 function getSnapshot(): State { return snapshot; }
-function getServerSnapshot(): State { return { fairs: [] }; }
+const SERVER_STATE: State = { fairs: [], loading: true, error: null };
+function getServerSnapshot(): State { return SERVER_STATE; }
+
+function rowToFair(r: Record<string, unknown>): Fair {
+  const j = <T,>(v: unknown, fallback: T): T => (v == null ? fallback : (v as T));
+  return {
+    id: String(r['id']),
+    name: String(r['name'] ?? ""),
+    year: Number(r['year'] ?? new Date().getFullYear()),
+    city: String(r['city'] ?? ""),
+    state: String(r['state'] ?? ""),
+    venue: (r['venue'] as string) ?? undefined,
+    startDate: (r['start_date'] as string) ?? undefined,
+    endDate: (r['end_date'] as string) ?? undefined,
+    status: (r['status'] as FairStatus) ?? "Em análise",
+    responsible: (r['responsible'] as string) ?? undefined,
+    commercial: (r['commercial'] as string) ?? undefined,
+    areaSize: (r['area_size'] as string) ?? undefined,
+    spaceValue: r['space_value'] == null ? undefined : Number(r['space_value']),
+    notes: (r['notes'] as string) ?? undefined,
+    checklist: j<ChecklistItem[]>(r['checklist'], []),
+    documents: j<DocumentItem[]>(r['documents'], []),
+    costs: j<CostItem[]>(r['costs'], []),
+    credentials: j<CredentialItem[]>(r['credentials'], []),
+    products: j<ProductItem[]>(r['products'], []),
+    materials: j<MaterialItem[]>(r['materials'], []),
+    suppliers: j<SupplierItem[]>(r['suppliers'], []),
+    report: j<FairReport>(r['report'], {}),
+    manualAnalysis: (r['manual_analysis'] as ManualAnalysis) ?? undefined,
+    readiness: j<ReadinessState>(r['readiness'], {}),
+    createdAt: String(r['created_at'] ?? new Date().toISOString()),
+  };
+}
+
+function fairToRow(f: Fair): Record<string, unknown> {
+  return {
+    id: f.id,
+    name: f.name,
+    year: f.year,
+    city: f.city,
+    state: f.state,
+    venue: f.venue ?? null,
+    start_date: f.startDate || null,
+    end_date: f.endDate || null,
+    status: f.status,
+    responsible: f.responsible ?? null,
+    commercial: f.commercial ?? null,
+    area_size: f.areaSize ?? null,
+    space_value: f.spaceValue ?? null,
+    notes: f.notes ?? null,
+    checklist: f.checklist ?? [],
+    documents: f.documents ?? [],
+    costs: f.costs ?? [],
+    credentials: f.credentials ?? [],
+    products: f.products ?? [],
+    materials: f.materials ?? [],
+    suppliers: f.suppliers ?? [],
+    report: f.report ?? {},
+    manual_analysis: f.manualAnalysis ?? null,
+    readiness: f.readiness ?? {},
+    readiness_status: f.readiness?.status ?? "Não pronta",
+    readiness_confirmed_at: f.readiness?.confirmedAt ?? null,
+    readiness_confirmed_by: f.readiness?.confirmedBy ?? null,
+    readiness_notes: f.readiness?.notes ?? null,
+  };
+}
+
+const dirty = new Set<string>();
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function flush() {
+  flushTimer = null;
+  const ids = [...dirty];
+  dirty.clear();
+  if (!ids.length) return;
+  const { supabase } = await import("@/integrations/supabase/client");
+  for (const id of ids) {
+    const fair = state.fairs.find((f) => f.id === id);
+    if (!fair) continue;
+    const { error } = await supabase.from("fairs").upsert(fairToRow(fair) as never);
+    if (error) {
+      state = { ...state, error: "Não foi possível salvar as alterações no banco." };
+      emit();
+    }
+  }
+}
+
+function queueSave(id: string) {
+  dirty.add(id);
+  if (flushTimer) clearTimeout(flushTimer);
+  flushTimer = setTimeout(() => { void flush(); }, 600);
+}
+
+let loadPromise: Promise<void> | null = null;
+
+async function migrateLegacy(existing: Fair[]) {
+  if (typeof window === "undefined") return existing;
+  let raw: string | null = null;
+  try { raw = window.localStorage.getItem(LEGACY_KEY); } catch { return existing; }
+  if (!raw) return existing;
+  let legacy: Fair[] = [];
+  try { legacy = (JSON.parse(raw) as { fairs?: Fair[] }).fairs ?? []; } catch { return existing; }
+  const pending = legacy.filter((l) => !existing.some((e) => e.name === l.name && e.year === l.year));
+  if (pending.length) {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const rows = pending.map((f) => ({ ...fairToRow({ ...f, id: uid() }), legacy_id: f.id }));
+    const { data, error } = await supabase.from("fairs").upsert(rows as never, { onConflict: "legacy_id" }).select();
+    if (!error && data) existing = [...(data as Record<string, unknown>[]).map(rowToFair), ...existing];
+  }
+  try { window.localStorage.setItem(`${LEGACY_KEY}:migrated`, raw); window.localStorage.removeItem(LEGACY_KEY); } catch {}
+  return existing;
+}
+
+async function loadFairs() {
+  const { supabase } = await import("@/integrations/supabase/client");
+  const { data, error } = await supabase.from("fairs").select("*").order("created_at", { ascending: false });
+  if (error) {
+    state = { ...state, loading: false, error: "Não foi possível carregar as feiras." };
+    emit();
+    return;
+  }
+  let fairs = (data as Record<string, unknown>[] ?? []).map(rowToFair);
+  fairs = await migrateLegacy(fairs);
+  fairs.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  state = { fairs, loading: false, error: null };
+  emit();
+}
+
+export function ensureFairsLoaded() {
+  if (typeof window === "undefined") return;
+  if (!loadPromise) loadPromise = loadFairs();
+}
+
+export function reloadFairs() {
+  loadPromise = loadFairs();
+}
 
 export function useStore<T>(selector: (s: State) => T): T {
+  useEffect(() => { ensureFairsLoaded(); }, []);
   return useSyncExternalStore(subscribe, () => selector(getSnapshot()), () => selector(getServerSnapshot()));
 }
 
 export const actions = {
-  addFair(f: Fair) { state.fairs = [f, ...state.fairs]; emit(); },
+  addFair(f: Fair) { state.fairs = [f, ...state.fairs]; emit(); queueSave(f.id); },
   updateFair(id: string, patch: Partial<Fair>) {
-    state.fairs = state.fairs.map(f => f.id === id ? { ...f, ...patch } : f); emit();
+    state.fairs = state.fairs.map(f => f.id === id ? { ...f, ...patch } : f); emit(); queueSave(id);
   },
-  deleteFair(id: string) { state.fairs = state.fairs.filter(f => f.id !== id); emit(); },
+  async deleteFair(id: string) {
+    state.fairs = state.fairs.filter(f => f.id !== id); emit();
+    const { supabase } = await import("@/integrations/supabase/client");
+    await supabase.from("fairs").delete().eq("id", id);
+  },
   updateChild<K extends keyof Fair>(fairId: string, key: K, updater: (list: Fair[K]) => Fair[K]) {
     state.fairs = state.fairs.map(f => f.id === fairId ? { ...f, [key]: updater(f[key]) } : f);
-    emit();
+    emit(); queueSave(fairId);
   },
 };
 

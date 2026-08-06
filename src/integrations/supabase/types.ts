@@ -14,6 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
+      fairs: {
+        Row: {
+          area_size: string | null
+          checklist: Json
+          city: string
+          commercial: string | null
+          costs: Json
+          created_at: string
+          created_by: string | null
+          credentials: Json
+          documents: Json
+          end_date: string | null
+          id: string
+          legacy_id: string | null
+          manual_analysis: Json | null
+          materials: Json
+          name: string
+          notes: string | null
+          products: Json
+          readiness: Json
+          readiness_confirmed_at: string | null
+          readiness_confirmed_by: string | null
+          readiness_notes: string | null
+          readiness_status: string
+          report: Json
+          responsible: string | null
+          space_value: number | null
+          start_date: string | null
+          state: string
+          status: string
+          suppliers: Json
+          updated_at: string
+          venue: string | null
+          year: number
+        }
+        Insert: {
+          area_size?: string | null
+          checklist?: Json
+          city?: string
+          commercial?: string | null
+          costs?: Json
+          created_at?: string
+          created_by?: string | null
+          credentials?: Json
+          documents?: Json
+          end_date?: string | null
+          id?: string
+          legacy_id?: string | null
+          manual_analysis?: Json | null
+          materials?: Json
+          name?: string
+          notes?: string | null
+          products?: Json
+          readiness?: Json
+          readiness_confirmed_at?: string | null
+          readiness_confirmed_by?: string | null
+          readiness_notes?: string | null
+          readiness_status?: string
+          report?: Json
+          responsible?: string | null
+          space_value?: number | null
+          start_date?: string | null
+          state?: string
+          status?: string
+          suppliers?: Json
+          updated_at?: string
+          venue?: string | null
+          year?: number
+        }
+        Update: {
+          area_size?: string | null
+          checklist?: Json
+          city?: string
+          commercial?: string | null
+          costs?: Json
+          created_at?: string
+          created_by?: string | null
+          credentials?: Json
+          documents?: Json
+          end_date?: string | null
+          id?: string
+          legacy_id?: string | null
+          manual_analysis?: Json | null
+          materials?: Json
+          name?: string
+          notes?: string | null
+          products?: Json
+          readiness?: Json
+          readiness_confirmed_at?: string | null
+          readiness_confirmed_by?: string | null
+          readiness_notes?: string | null
+          readiness_status?: string
+          report?: Json
+          responsible?: string | null
+          space_value?: number | null
+          start_date?: string | null
+          state?: string
+          status?: string
+          suppliers?: Json
+          updated_at?: string
+          venue?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
       image_projects: {
         Row: {
           analysis: Json | null

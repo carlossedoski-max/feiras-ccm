@@ -17,6 +17,8 @@ const Input = z.object({
   requiredItems: z.array(z.string()).default([]),
   extraNotes: z.string().default(""),
   variationHint: z.string().default(""),
+  brandFidelity: z.string().default("Alta — cores e logos exatamente como a marca"),
+  promptOnly: z.boolean().default(false),
 });
 
 const CHAT_MODEL = "google/gemini-3-flash-preview";
@@ -90,6 +92,7 @@ Opções escolhidas:
 - Cidade/UF: ${[data.city, data.state].filter(Boolean).join("/") || "não informado"}
 - Marca principal: ${data.mainBrand || "CCM do Brasil / Kawashima"}
 - Itens obrigatórios: ${data.requiredItems.length ? data.requiredItems.join(", ") : "nenhum marcado"}
+- Fidelidade de marca: ${data.brandFidelity}
 - Observações extras: ${data.extraNotes || "—"}
 ${data.variationHint ? `- Ajuste desta variação: ${data.variationHint}` : ""}`;
 
@@ -112,6 +115,17 @@ ${data.variationHint ? `- Ajuste desta variação: ${data.variationHint}` : ""}`
     const arr = (v: unknown) => (Array.isArray(v) ? v.map(String) : []);
     const imagePrompt = String(plan['imagePrompt'] ?? "").trim();
     if (!imagePrompt) throw new Error("A IA não conseguiu montar o prompt visual.");
+
+    if (data.promptOnly) {
+      return {
+        imagePath: "",
+        prompt: imagePrompt,
+        definedItems: arr(plan['definedItems']),
+        aiItems: arr(plan['aiItems']),
+        visualSummary: String(plan['visualSummary'] ?? ""),
+        userId: context.userId,
+      };
+    }
 
     const imgRes = await fetch(`${GATEWAY}/images/generations`, {
       method: "POST",

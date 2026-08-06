@@ -23,7 +23,7 @@ import {
   downloadDoc, patchProject, projectSignedUrl, type ImageProject,
 } from "@/lib/image-projects";
 import {
-  AMBIENCES, BUDGET_TIERS, IMAGE_STYLES, PERIODS, QUOTE_STATUSES, REQUIRED_ITEMS,
+  AMBIENCES, BRAND_FIDELITY, BUDGET_TIERS, IMAGE_STYLES, PERIODS, QUOTE_STATUSES, REQUIRED_ITEMS,
   TARGET_BUDGETS, VARIATIONS, VERSION_STATUSES,
   deleteRender, fetchRenders, insertRender, patchRender, renderToText, supplierMessage,
   type ProjectRender,
@@ -56,6 +56,8 @@ export function ConceptImageTab({
   const [fairType, setFairType] = useState<string>(project.fair_type ?? "");
   const [mainBrand, setMainBrand] = useState<string>(project.main_brand ?? "CCM do Brasil / Kawashima");
   const [extraNotes, setExtraNotes] = useState("");
+  const [brandFidelity, setBrandFidelity] = useState<string>(BRAND_FIDELITY[0]);
+  const [promptPreview, setPromptPreview] = useState<{ prompt: string; summary: string } | null>(null);
   const [required, setRequired] = useState<string[]>(project.required_items ?? []);
   const [responsible, setResponsible] = useState(project.responsible ?? "Marketing");
 
@@ -74,9 +76,9 @@ export function ConceptImageTab({
     setRequired((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]));
   }
 
-  async function generate(variation?: { label: string; hint: string }) {
+  async function generate(variation?: { label: string; hint: string }, promptOnly = false) {
     if (!briefing.trim()) { toast.error("Gere ou escreva o briefing técnico antes de criar a imagem."); return; }
-    setBusy(variation?.label ?? "main");
+    setBusy(promptOnly ? "prompt" : (variation?.label ?? "main"));
     try {
       const res = await generateConceptImage({
         data: {
@@ -94,8 +96,15 @@ export function ConceptImageTab({
           requiredItems: required,
           extraNotes,
           variationHint: variation?.hint ?? "",
+          brandFidelity,
+          promptOnly,
         },
       });
+      if (promptOnly) {
+        setPromptPreview({ prompt: res.prompt, summary: res.visualSummary });
+        toast.success("Prompt gerado sem criar imagem.");
+        return;
+      }
       const nextVersion = (renders[0]?.version ?? 0) + 1;
       await insertRender({
         project_id: project.id,
@@ -192,6 +201,12 @@ export function ConceptImageTab({
           <Field label="Marca principal">
             <Input value={mainBrand} onChange={(e) => setMainBrand(e.target.value)} />
           </Field>
+          <Field label="Fidelidade de marca">
+            <Select value={brandFidelity} onValueChange={setBrandFidelity}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{BRAND_FIDELITY.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
           <Field label="Responsável">
             <Input value={responsible} onChange={(e) => setResponsible(e.target.value)} />
           </Field>
@@ -220,8 +235,26 @@ export function ConceptImageTab({
           <Button onClick={() => generate()} disabled={busy !== null}>
             {busy === "main" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual
           </Button>
+          <Button variant="outline" onClick={() => generate(undefined, true)} disabled={busy !== null}>
+            {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} Gerar apenas o prompt
+          </Button>
           <span className="text-xs text-muted-foreground">Imagem meramente conceitual — não substitui projeto executivo, planta técnica, ART/RRT ou medidas finais da montadora.</span>
         </div>
+
+        {promptPreview && (
+          <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Label className="text-sm font-semibold">Prompt gerado (sem criar imagem)</Label>
+              <Button size="sm" variant="outline" className="ml-auto" onClick={() => copy(promptPreview.prompt, "Prompt")}>Copiar prompt</Button>
+              <Button size="sm" variant="ghost" onClick={() => setPromptPreview(null)}>Fechar</Button>
+            </div>
+            <Textarea rows={6} readOnly value={promptPreview.prompt} className="font-mono text-xs" />
+            {promptPreview.summary && (
+              <p className="whitespace-pre-wrap text-xs text-muted-foreground">{promptPreview.summary}</p>
+            )}
+          </div>
+        )}
+
 
         <div className="space-y-2 border-t pt-3">
           <Label>Variações</Label>

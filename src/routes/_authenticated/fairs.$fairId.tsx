@@ -23,11 +23,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ManualTab } from "@/components/manual-tab";
+import { ReadinessTab } from "@/components/readiness-tab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchSuppliers, type Supplier as AuxSupplier } from "@/lib/suppliers";
 
-export const Route = createFileRoute("/fairs/$fairId")({
+export const Route = createFileRoute("/_authenticated/fairs/$fairId")({
   loader: ({ params }) => ({ fairId: params.fairId }),
   head: () => ({ meta: [{ title: "Ficha da feira — CCM Feira Control" }] }),
   component: FairDetail,
@@ -80,6 +81,7 @@ function FairDetail() {
         <div className="overflow-x-auto -mx-4 px-4">
           <TabsList className="inline-flex h-auto flex-nowrap">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="readiness">Feira pronta?</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
             <TabsTrigger value="documents">Contratos</TabsTrigger>
             <TabsTrigger value="costs">Taxas e Custos</TabsTrigger>
@@ -93,6 +95,7 @@ function FairDetail() {
         </div>
 
         <TabsContent value="overview"><OverviewTab fair={fair} onUpdate={update} /></TabsContent>
+        <TabsContent value="readiness"><ReadinessTab fair={fair} /></TabsContent>
         <TabsContent value="checklist"><ChecklistTab fair={fair} /></TabsContent>
         <TabsContent value="documents"><DocumentsTab fair={fair} /></TabsContent>
         <TabsContent value="costs"><CostsTab fair={fair} /></TabsContent>
