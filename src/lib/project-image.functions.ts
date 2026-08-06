@@ -17,6 +17,8 @@ const Input = z.object({
   requiredItems: z.array(z.string()).default([]),
   extraNotes: z.string().default(""),
   variationHint: z.string().default(""),
+  brandFidelity: z.string().default("Alta — cores e logos exatamente como a marca"),
+  promptOnly: z.boolean().default(false),
 });
 
 const CHAT_MODEL = "google/gemini-3-flash-preview";
