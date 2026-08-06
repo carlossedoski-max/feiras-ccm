@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { CalendarCheck2, ClipboardList, FileWarning, CreditCard, IdCard, PackageSearch, CircleCheck, Hourglass, Layers, Flame, CalendarX2, CalendarClock, MailQuestion, ClipboardCheck, Copy, Check } from "lucide-react";
+import { CalendarCheck2, ClipboardList, FileWarning, CreditCard, IdCard, PackageSearch, CircleCheck, Hourglass, Layers, Flame, CalendarX2, CalendarClock, MailQuestion, ClipboardCheck, Copy, Check, Radar } from "lucide-react";
 import { useStore, type Fair, type Priority, daysUntil, fmtDate, deadlineTone, toneClasses, isThisWeek, actions } from "@/lib/store";
+import { readinessSummary } from "@/lib/readiness";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
