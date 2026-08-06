@@ -139,6 +139,8 @@ export interface ReadinessEntry {
   answer?: ReadinessAnswer;
   responsible?: string;
   note?: string;
+  filePath?: string;
+  fileName?: string;
 }
 export interface ReadinessState {
   items?: Record<string, ReadinessEntry>;
