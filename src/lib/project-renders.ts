@@ -17,6 +17,12 @@ export const IMAGE_STYLES = [
 export const PERIODS = ["Dia", "Noite"] as const;
 export const AMBIENCES = ["Mais aberto", "Mais fechado"] as const;
 export const BUDGET_TIERS = ["Econômico", "Intermediário", "Premium"] as const;
+export const BRAND_FIDELITY = [
+  "Alta — cores e logos exatamente como a marca",
+  "Média — identidade da marca, com liberdade criativa",
+  "Baixa — apenas referência de cores",
+  "Sem marca — estande neutro",
+] as const;
 
 export const TARGET_BUDGETS = [
   "Até R$ 50 mil",
