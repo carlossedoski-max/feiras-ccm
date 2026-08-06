@@ -354,6 +354,110 @@ function LegendDot({ cls, label }: { cls: string; label: string }) {
   return <span className="inline-flex items-center gap-1.5"><span className={`h-2.5 w-2.5 rounded-full ${cls}`} />{label}</span>;
 }
 
+// ============ Radar Diário ============
+function DailyRadar({ fairs, pendencies }: { fairs: Fair[]; pendencies: Pendency[] }) {
+  const blocks = useMemo(() => {
+    const overdue = pendencies.filter(p => { const d = daysUntil(p.deadline); return d != null && d < 0; });
+    const urgent = pendencies.filter(p => p.priority === "Urgente" && !overdue.includes(p));
+    const critical = [...overdue, ...urgent];
+    const today = pendencies.filter(p => daysUntil(p.deadline) === 0);
+    const next3 = pendencies.filter(p => { const d = daysUntil(p.deadline); return d != null && d >= 1 && d <= 3; });
+    const noDeadline = pendencies.filter(p => !p.deadline);
+
+    const operation: Array<{ key: string; fairId: string; fairName: string; description: string }> = [];
+    for (const f of fairs) {
+      if (f.status === "Finalizada" || f.status === "Cancelada") continue;
+      const s = readinessSummary(f);
+      const days = daysUntil(f.startDate);
+      const near = days != null && days <= 30;
+      if (near && s.pendingShipping.length > 0) {
+        operation.push({
+          key: `ship-${f.id}`, fairId: f.id, fairName: f.name,
+          description: `${s.pendingShipping.length} pendência(s) antes do envio dos produtos`,
+        });
+      }
+      if (near && s.pendingRequired.length > 0) {
+        operation.push({
+          key: `ready-${f.id}`, fairId: f.id, fairName: f.name,
+          description: `Feira não liberada: ${s.pendingRequired.length} item(ns) obrigatório(s) em aberto`,
+        });
+      }
+      if (days != null && days >= 0 && days <= 7) {
+        operation.push({
+          key: `start-${f.id}`, fairId: f.id, fairName: f.name,
+          description: days === 0 ? "Começa hoje" : `Começa em ${days} dia(s) — ${fmtDate(f.startDate)}`,
+        });
+      }
+    }
+    return { critical, today, next3, noDeadline, operation };
+  }, [fairs, pendencies]);
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center gap-2">
+        <Radar className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-semibold">Radar Diário</h2>
+        <span className="text-xs text-muted-foreground">O que precisa da sua atenção hoje</span>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <RadarBlock title="Crítico" tone="destructive" items={blocks.critical} empty="Nada crítico agora." />
+        <RadarBlock title="Hoje" tone="warning" items={blocks.today} empty="Nenhum prazo para hoje." />
+        <RadarBlock title="Próximos 3 dias" tone="info" items={blocks.next3} empty="Nenhum prazo próximo." />
+        <RadarBlock title="Sem prazo" tone="muted" items={blocks.noDeadline} empty="Todos os itens têm prazo." />
+        <RadarBlock title="Operação" tone="primary" items={blocks.operation} empty="Nenhum alerta operacional." />
+      </div>
+    </section>
+  );
+}
+
+const radarTone: Record<string, { head: string; badge: string }> = {
+  destructive: { head: "border-destructive/40 bg-destructive/10 text-destructive", badge: "bg-destructive text-destructive-foreground" },
+  warning: { head: "border-warning/50 bg-warning/15 text-warning-foreground", badge: "bg-warning text-warning-foreground" },
+  info: { head: "border-info/40 bg-info/10 text-info", badge: "bg-info text-info-foreground" },
+  muted: { head: "border-border bg-muted/50 text-muted-foreground", badge: "bg-muted-foreground text-background" },
+  primary: { head: "border-primary/40 bg-primary/10 text-primary", badge: "bg-primary text-primary-foreground" },
+};
+
+function RadarBlock({
+  title, tone, items, empty,
+}: {
+  title: string;
+  tone: keyof typeof radarTone | string;
+  items: Array<{ key: string; fairId: string; fairName: string; description: string; deadline?: string }>;
+  empty: string;
+}) {
+  const t = radarTone[tone] ?? radarTone['primary']!;
+  return (
+    <Card className="overflow-hidden">
+      <div className={`flex items-center justify-between border-b px-3 py-2 ${t.head}`}>
+        <span className="text-sm font-semibold">{title}</span>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${t.badge}`}>{items.length}</span>
+      </div>
+      <CardContent className="p-0">
+        {items.length === 0 ? (
+          <p className="p-3 text-xs text-muted-foreground">{empty}</p>
+        ) : (
+          <ul className="divide-y">
+            {items.slice(0, 6).map(i => (
+              <li key={i.key}>
+                <Link to="/fairs/$fairId" params={{ fairId: i.fairId }} className="block px-3 py-2 hover:bg-muted/60">
+                  <p className="text-xs font-medium leading-snug line-clamp-2">{i.description}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
+                    {i.fairName}{i.deadline ? ` · ${fmtDate(i.deadline)}` : ""}
+                  </p>
+                </Link>
+              </li>
+            ))}
+            {items.length > 6 && (
+              <li className="px-3 py-2 text-[11px] text-muted-foreground">+{items.length - 6} item(ns)</li>
+            )}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function FilterChip({ label, active, onClick, tone }: { label: string; active: boolean; onClick: () => void; tone?: string }) {
   const activeCls = tone === "destructive" ? "bg-destructive text-destructive-foreground border-destructive" :
                     tone === "warning"     ? "bg-warning text-warning-foreground border-warning" :
