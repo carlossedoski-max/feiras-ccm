@@ -76,9 +76,9 @@ export function ConceptImageTab({
     setRequired((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]));
   }
 
-  async function generate(variation?: { label: string; hint: string }) {
+  async function generate(variation?: { label: string; hint: string }, promptOnly = false) {
     if (!briefing.trim()) { toast.error("Gere ou escreva o briefing técnico antes de criar a imagem."); return; }
-    setBusy(variation?.label ?? "main");
+    setBusy(promptOnly ? "prompt" : (variation?.label ?? "main"));
     try {
       const res = await generateConceptImage({
         data: {
@@ -96,8 +96,15 @@ export function ConceptImageTab({
           requiredItems: required,
           extraNotes,
           variationHint: variation?.hint ?? "",
+          brandFidelity,
+          promptOnly,
         },
       });
+      if (promptOnly) {
+        setPromptPreview({ prompt: res.prompt, summary: res.visualSummary });
+        toast.success("Prompt gerado sem criar imagem.");
+        return;
+      }
       const nextVersion = (renders[0]?.version ?? 0) + 1;
       await insertRender({
         project_id: project.id,
