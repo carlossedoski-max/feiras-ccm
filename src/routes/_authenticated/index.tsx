@@ -253,6 +253,9 @@ function Dashboard() {
         </Dialog>
       </div>
 
+      {/* Radar Diário */}
+      <DailyRadar fairs={fairs} pendencies={pendencies} />
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         {cards.map(c => {
