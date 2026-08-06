@@ -201,6 +201,12 @@ export function ConceptImageTab({
           <Field label="Marca principal">
             <Input value={mainBrand} onChange={(e) => setMainBrand(e.target.value)} />
           </Field>
+          <Field label="Fidelidade de marca">
+            <Select value={brandFidelity} onValueChange={setBrandFidelity}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{BRAND_FIDELITY.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
           <Field label="Responsável">
             <Input value={responsible} onChange={(e) => setResponsible(e.target.value)} />
           </Field>
@@ -229,8 +235,26 @@ export function ConceptImageTab({
           <Button onClick={() => generate()} disabled={busy !== null}>
             {busy === "main" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual
           </Button>
+          <Button variant="outline" onClick={() => generate(undefined, true)} disabled={busy !== null}>
+            {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} Gerar apenas o prompt
+          </Button>
           <span className="text-xs text-muted-foreground">Imagem meramente conceitual — não substitui projeto executivo, planta técnica, ART/RRT ou medidas finais da montadora.</span>
         </div>
+
+        {promptPreview && (
+          <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Label className="text-sm font-semibold">Prompt gerado (sem criar imagem)</Label>
+              <Button size="sm" variant="outline" className="ml-auto" onClick={() => copy(promptPreview.prompt, "Prompt")}>Copiar prompt</Button>
+              <Button size="sm" variant="ghost" onClick={() => setPromptPreview(null)}>Fechar</Button>
+            </div>
+            <Textarea rows={6} readOnly value={promptPreview.prompt} className="font-mono text-xs" />
+            {promptPreview.summary && (
+              <p className="whitespace-pre-wrap text-xs text-muted-foreground">{promptPreview.summary}</p>
+            )}
+          </div>
+        )}
+
 
         <div className="space-y-2 border-t pt-3">
           <Label>Variações</Label>
