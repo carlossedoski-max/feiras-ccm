@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Sparkles, Loader2, Copy, Download, Trash2, Image as ImageIcon, Wand2, MessageSquare,
-  CalendarPlus, Building2, Save,
+  CalendarPlus, Building2, Save, Upload, History, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,18 +17,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 import {
-  downloadDoc, patchProject, projectSignedUrl, type ImageProject,
+  downloadDoc, historyEntry, patchProject, projectSignedUrl, uploadProjectFile,
+  type ImageProject, type ProjectHistoryEntry,
 } from "@/lib/image-projects";
 import {
-  AMBIENCES, BRAND_FIDELITY, BUDGET_TIERS, IMAGE_STYLES, PERIODS, QUOTE_STATUSES, REQUIRED_ITEMS,
-  TARGET_BUDGETS, VARIATIONS, VERSION_STATUSES,
+  AMBIENCES, BRAND_FIDELITY, BUDGET_TIERS, IMAGE_STYLES, IMAGE_ORIGINS, PERIODS, QUOTE_STATUSES,
+  REQUIRED_ITEMS, TARGET_BUDGETS, VARIATIONS, VERSION_STATUSES,
   deleteRender, fetchRenders, insertRender, patchRender, renderToText, supplierMessage,
   type ProjectRender,
 } from "@/lib/project-renders";
-import { generateConceptImage } from "@/lib/project-image.functions";
+import { generateConceptImage, generateConceptPrompt } from "@/lib/project-image.functions";
+import { buildTemplatePrompt } from "@/lib/templates";
+import { AiConfigCard } from "@/components/ai-config-card";
 import { fetchSuppliers, type Supplier } from "@/lib/suppliers";
 import { actions, createEmptyFair } from "@/lib/store";
 
@@ -55,11 +62,17 @@ export function ConceptImageTab({
   const [targetBudget, setTargetBudget] = useState<string>(project.target_budget ?? TARGET_BUDGETS[1]);
   const [fairType, setFairType] = useState<string>(project.fair_type ?? "");
   const [mainBrand, setMainBrand] = useState<string>(project.main_brand ?? "CCM do Brasil / Kawashima");
+  const [brandColors, setBrandColors] = useState("Vermelho CCM, azul Kawashima, branco e grafite");
   const [extraNotes, setExtraNotes] = useState("");
   const [brandFidelity, setBrandFidelity] = useState<string>(BRAND_FIDELITY[0]);
-  const [promptPreview, setPromptPreview] = useState<{ prompt: string; summary: string } | null>(null);
   const [required, setRequired] = useState<string[]>(project.required_items ?? []);
   const [responsible, setResponsible] = useState(project.responsible ?? "Marketing");
+
+  const [promptText, setPromptText] = useState("");
+  const [promptSource, setPromptSource] = useState<string>("");
+  const [promptSummary, setPromptSummary] = useState("");
+  const [definedItems, setDefinedItems] = useState<string[]>([]);
+  const [aiItems, setAiItems] = useState<string[]>([]);
 
   const { data: renders = [], isLoading } = useQuery({
     queryKey: ["project_renders", project.id],
@@ -72,39 +85,87 @@ export function ConceptImageTab({
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Erro ao salvar."),
   });
 
+  const history = project.history ?? [];
+  const pushHistory = (e: Omit<ProjectHistoryEntry, "id" | "at">) =>
+    saveProject.mutate({ history: [historyEntry(e), ...history].slice(0, 60) });
+
   function toggleItem(item: string) {
     setRequired((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]));
   }
 
-  async function generate(variation?: { label: string; hint: string }, promptOnly = false) {
-    if (!briefing.trim()) { toast.error("Gere ou escreva o briefing técnico antes de criar a imagem."); return; }
-    setBusy(promptOnly ? "prompt" : (variation?.label ?? "main"));
+  function templateData(variationHint?: string) {
+    return {
+      fairName: project.related_fair || project.name,
+      city: project.city ?? "",
+      state: project.state ?? "",
+      area: project.notes ?? "",
+      objective: project.objective ?? "",
+      style, period, ambience, budgetTier, targetBudget,
+      mainBrand, brandColors,
+      brandFidelity,
+      fairType,
+      requiredItems: required,
+      notes: [extraNotes, variationHint].filter(Boolean).join(" "),
+    };
+  }
+
+  /** TEMPLATE — não usa IA, não consome nenhum crédito. */
+  function promptByTemplate(variation?: { label: string; hint: string }) {
+    const text = buildTemplatePrompt(templateData(variation?.hint));
+    setPromptText(text);
+    setPromptSource("Template (sem consumo de crédito)");
+    setPromptSummary("");
+    setDefinedItems(required);
+    setAiItems([]);
+    pushHistory({ action: "Prompt por template gerado", status: "Prompt por template gerado", mode: "Template" });
+    toast.success("Prompt profissional gerado por template.");
+  }
+
+  /** IA de TEXTO — nunca chama API de imagem. */
+  async function promptByAi(variation?: { label: string; hint: string }) {
+    setBusy("prompt");
     try {
-      const res = await generateConceptImage({
+      const res = await generateConceptPrompt({
         data: {
-          projectId: project.id,
-          briefing,
-          style,
-          period,
-          ambience,
-          budgetTier,
-          targetBudget,
-          fairType,
-          city: project.city ?? "",
-          state: project.state ?? "",
-          mainBrand,
-          requiredItems: required,
-          extraNotes,
-          variationHint: variation?.hint ?? "",
-          brandFidelity,
-          promptOnly,
+          briefing, style, period, ambience, budgetTier, targetBudget, fairType,
+          city: project.city ?? "", state: project.state ?? "",
+          mainBrand, requiredItems: required, extraNotes,
+          variationHint: variation?.hint ?? "", brandFidelity, mode: "auto",
         },
       });
-      if (promptOnly) {
-        setPromptPreview({ prompt: res.prompt, summary: res.visualSummary });
-        toast.success("Prompt gerado sem criar imagem.");
-        return;
-      }
+      setPromptText(res.prompt);
+      setPromptSource(`${res.provider} · ${res.model}`);
+      setPromptSummary(res.visualSummary);
+      setDefinedItems(res.definedItems);
+      setAiItems(res.aiItems);
+      pushHistory({
+        action: "Prompt gerado com IA",
+        status: res.provider === "OpenAI API" ? "Análise com OpenAI concluída" : "Prompt gerado com IA",
+        mode: res.provider === "OpenAI API" ? "OpenAI API" : "Lovable AI",
+        model: res.model,
+      });
+      toast.success("Prompt gerado com IA.");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Falha ao gerar o prompt.";
+      pushHistory({ action: "Prompt com IA", status: "Erro na API", mode: "OpenAI API", error: msg });
+      toast.error(`${msg} Gerando prompt por template…`);
+      promptByTemplate(variation);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  /** IMAGEM — separado do prompt; só roda com confirmação explícita. */
+  async function makeImage(variation?: { label: string; hint: string }) {
+    let prompt = promptText.trim();
+    if (!prompt) {
+      prompt = buildTemplatePrompt(templateData(variation?.hint));
+      setPromptText(prompt);
+      setPromptSource("Template (sem consumo de crédito)");
+    }
+    setBusy(variation?.label ?? "image");
+    try {
+      const res = await generateConceptImage({ data: { projectId: project.id, prompt } });
       const nextVersion = (renders[0]?.version ?? 0) + 1;
       await insertRender({
         project_id: project.id,
@@ -112,7 +173,7 @@ export function ConceptImageTab({
         label: variation?.label ?? "Projeto inicial",
         image_path: res.imagePath,
         image_type: "image/png",
-        prompt: res.prompt,
+        prompt,
         briefing,
         style, period, ambience,
         budget_tier: budgetTier,
@@ -121,25 +182,26 @@ export function ConceptImageTab({
         city: project.city, state: project.state,
         main_brand: mainBrand,
         required_items: required,
-        defined_items: res.definedItems,
-        ai_items: res.aiItems,
-        visual_summary: res.visualSummary,
+        defined_items: definedItems,
+        ai_items: aiItems,
+        visual_summary: promptSummary,
         notes: extraNotes,
         responsible,
         status: "Rascunho",
+        origin: "Gerada pela ferramenta",
+        mode: res.provider,
       });
       await saveProject.mutateAsync({
-        briefing,
-        budget_tier: budgetTier,
-        target_budget: targetBudget,
-        fair_type: fairType,
-        main_brand: mainBrand,
-        required_items: required,
+        briefing, budget_tier: budgetTier, target_budget: targetBudget,
+        fair_type: fairType, main_brand: mainBrand, required_items: required,
+        history: [historyEntry({ action: "Imagem conceitual gerada", status: "Imagem gerada", mode: res.provider === "OpenAI API" ? "OpenAI API" : "Lovable AI" }), ...history].slice(0, 60),
       });
       qc.invalidateQueries({ queryKey: ["project_renders", project.id] });
       toast.success(`Versão ${nextVersion} gerada.`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Falha ao gerar a imagem.");
+      const msg = e instanceof Error ? e.message : "Falha ao gerar a imagem.";
+      pushHistory({ action: "Geração de imagem", status: "Créditos insuficientes / erro na API", mode: "OpenAI API", error: msg });
+      toast.error(`${msg} Os créditos de imagem estão indisponíveis, mas o prompt continua salvo para uso posterior.`);
     } finally {
       setBusy(null);
     }
@@ -147,9 +209,11 @@ export function ConceptImageTab({
 
   return (
     <div className="space-y-4">
+      <AiConfigCard />
+
       <Card><CardContent className="space-y-4 p-5">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2 text-sm font-semibold"><Wand2 className="h-4 w-4" /> Gerar imagem do projeto</div>
+          <div className="flex items-center gap-2 text-sm font-semibold"><Wand2 className="h-4 w-4" /> Prompt e imagem do projeto</div>
           <Button variant="outline" size="sm" className="ml-auto" onClick={() => setEditBriefing((v) => !v)}>
             {editBriefing ? "Ocultar briefing" : "Editar briefing"}
           </Button>
@@ -201,6 +265,9 @@ export function ConceptImageTab({
           <Field label="Marca principal">
             <Input value={mainBrand} onChange={(e) => setMainBrand(e.target.value)} />
           </Field>
+          <Field label="Cores da marca">
+            <Input value={brandColors} onChange={(e) => setBrandColors(e.target.value)} />
+          </Field>
           <Field label="Fidelidade de marca">
             <Select value={brandFidelity} onValueChange={setBrandFidelity}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -231,46 +298,102 @@ export function ConceptImageTab({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <Button onClick={() => generate()} disabled={busy !== null}>
-            {busy === "main" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual
-          </Button>
-          <Button variant="outline" onClick={() => generate(undefined, true)} disabled={busy !== null}>
-            {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} Gerar apenas o prompt
-          </Button>
-          <span className="text-xs text-muted-foreground">Imagem meramente conceitual — não substitui projeto executivo, planta técnica, ART/RRT ou medidas finais da montadora.</span>
+        {/* ---- Ações separadas: prompt x imagem ---- */}
+        <div className="grid gap-3 border-t pt-4 md:grid-cols-2">
+          <div className="space-y-2 rounded-md border p-3">
+            <div className="flex items-center gap-2 text-sm font-semibold"><FileText className="h-4 w-4" /> Gerar prompt profissional</div>
+            <p className="text-xs text-muted-foreground">Não consome crédito de imagem. Funciona mesmo sem IA disponível.</p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => promptByTemplate()}>
+                <Wand2 className="h-4 w-4" /> Gerar por template
+              </Button>
+              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => promptByAi()}>
+                {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar com IA
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2 rounded-md border p-3">
+            <div className="flex items-center gap-2 text-sm font-semibold"><ImageIcon className="h-4 w-4" /> Gerar imagem conceitual</div>
+            <p className="text-xs text-muted-foreground">Esta ação pode consumir crédito/API de imagem.</p>
+            <div className="flex flex-wrap gap-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" disabled={busy !== null}>
+                    {busy === "image" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Gerar imagem conceitual?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação pode gerar consumo na API configurada ou nos créditos de imagem. Se preferir, gere apenas o prompt — ele não consome crédito de imagem.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <Button variant="outline" onClick={() => promptByTemplate()}>Gerar apenas prompt</Button>
+                    <AlertDialogAction onClick={() => void makeImage()}>Continuar</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <ManualImageUpload
+                project={project}
+                nextVersion={(renders[0]?.version ?? 0) + 1}
+                briefing={briefing}
+                responsible={responsible}
+                onDone={(entry) => {
+                  qc.invalidateQueries({ queryKey: ["project_renders", project.id] });
+                  pushHistory(entry);
+                }}
+              />
+            </div>
+          </div>
         </div>
 
-        {promptPreview && (
+        {promptText && (
           <div className="space-y-2 rounded-md border bg-muted/30 p-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Label className="text-sm font-semibold">Prompt gerado (sem criar imagem)</Label>
-              <Button size="sm" variant="outline" className="ml-auto" onClick={() => copy(promptPreview.prompt, "Prompt")}>Copiar prompt</Button>
-              <Button size="sm" variant="ghost" onClick={() => setPromptPreview(null)}>Fechar</Button>
+              <Label className="text-sm font-semibold">Prompt gerado</Label>
+              {promptSource && <Badge variant="outline" className="text-[11px]">{promptSource}</Badge>}
+              <Button size="sm" variant="outline" className="ml-auto" onClick={() => copy(promptText, "Prompt")}>
+                <Copy className="h-4 w-4" /> Copiar prompt
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => { saveProject.mutate({ briefing, history: [historyEntry({ action: "Prompt salvo no projeto", status: "Prompt salvo", mode: "Template", detail: promptText.slice(0, 500) }), ...history].slice(0, 60) }); toast.success("Prompt salvo no projeto."); }}>
+                <Save className="h-4 w-4" /> Salvar prompt no projeto
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setPromptText("")}>Fechar</Button>
             </div>
-            <Textarea rows={6} readOnly value={promptPreview.prompt} className="font-mono text-xs" />
-            {promptPreview.summary && (
-              <p className="whitespace-pre-wrap text-xs text-muted-foreground">{promptPreview.summary}</p>
-            )}
+            <Textarea rows={7} value={promptText} onChange={(e) => setPromptText(e.target.value)} className="font-mono text-xs" />
+            <p className="text-xs text-muted-foreground">
+              Você pode editar o prompt acima antes de gerar a imagem, copiá-lo para usar em outra ferramenta ou enviar a imagem manualmente depois.
+            </p>
+            {promptSummary && <p className="whitespace-pre-wrap text-xs text-muted-foreground">{promptSummary}</p>}
           </div>
         )}
 
-
         <div className="space-y-2 border-t pt-3">
           <Label>Variações</Label>
+          <p className="text-xs text-muted-foreground">Gera o prompt da variação. Depois use “Gerar imagem conceitual” se quiser a imagem.</p>
           <div className="flex flex-wrap gap-2">
             {VARIATIONS.map((v) => (
-              <Button key={v.label} variant="outline" size="sm" disabled={busy !== null} onClick={() => generate(v)}>
-                {busy === v.label ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} {v.label}
+              <Button key={v.label} variant="outline" size="sm" disabled={busy !== null} onClick={() => promptByTemplate(v)}>
+                <Wand2 className="h-4 w-4" /> {v.label}
               </Button>
             ))}
           </div>
         </div>
+
+        <p className="text-xs text-muted-foreground">
+          Imagem meramente conceitual — não substitui projeto executivo, planta técnica, ART/RRT ou medidas finais da montadora.
+        </p>
       </CardContent></Card>
 
       <SupplierLink project={project} onSave={(patch) => saveProject.mutate(patch)} />
 
       <ReuseFairButton project={project} />
+
+      <HistoryCard history={history} />
 
       {isLoading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Carregando versões…</div>
@@ -292,9 +415,109 @@ export function ConceptImageTab({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div className="space-y-1.5"><Label>{label}</Label>{children}</div>;
+/* ---------- Upload manual de imagem ---------- */
+function ManualImageUpload({
+  project, nextVersion, briefing, responsible, onDone,
+}: {
+  project: ImageProject;
+  nextVersion: number;
+  briefing: string;
+  responsible: string;
+  onDone: (e: Omit<ProjectHistoryEntry, "id" | "at">) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [label, setLabel] = useState("Imagem enviada manualmente");
+  const [origin, setOrigin] = useState<string>(IMAGE_ORIGINS[1]);
+  const [notes, setNotes] = useState("");
+  const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function submit() {
+    const file = fileRef.current?.files?.[0];
+    if (!file) { toast.error("Selecione uma imagem."); return; }
+    setBusy(true);
+    try {
+      const up = await uploadProjectFile(file);
+      await insertRender({
+        project_id: project.id,
+        version: nextVersion,
+        label: label || "Imagem enviada manualmente",
+        image_path: up.path,
+        image_type: up.type || "image/png",
+        briefing,
+        notes,
+        responsible,
+        status: "Rascunho",
+        origin,
+        mode: "Manual",
+        required_items: project.required_items ?? [],
+        defined_items: [],
+        ai_items: [],
+      });
+      onDone({ action: "Imagem enviada manualmente", status: "Imagem enviada manualmente", mode: "Manual", detail: `${label} · ${origin}` });
+      toast.success("Imagem enviada e salva no histórico.");
+      setOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao enviar a imagem.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm"><Upload className="h-4 w-4" /> Enviar imagem manualmente</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Enviar imagem manualmente</DialogTitle>
+          <DialogDescription>Use uma imagem criada fora da ferramenta. Ela entra no histórico de versões normalmente.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <Field label="Arquivo de imagem">
+            <Input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" />
+          </Field>
+          <Field label="Nome da versão"><Input value={label} onChange={(e) => setLabel(e.target.value)} /></Field>
+          <Field label="Origem da imagem">
+            <Select value={origin} onValueChange={setOrigin}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{IMAGE_ORIGINS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+            </Select>
+          </Field>
+          <Field label="Observações"><Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></Field>
+          <Button onClick={() => void submit()} disabled={busy}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Salvar imagem
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
+
+/* ---------- Histórico de tentativas ---------- */
+function HistoryCard({ history }: { history: ProjectHistoryEntry[] }) {
+  if (!history.length) return null;
+  return (
+    <Card><CardContent className="space-y-2 p-5">
+      <div className="flex items-center gap-2 text-sm font-semibold"><History className="h-4 w-4" /> Histórico de tentativas ({history.length})</div>
+      <div className="max-h-72 space-y-1.5 overflow-auto">
+        {history.map((h) => (
+          <div key={h.id} className="rounded-md border p-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">{h.action}</span>
+              <Badge variant="outline" className="text-[10px]">{h.mode}</Badge>
+              <span className="text-muted-foreground">{new Date(h.at).toLocaleString("pt-BR")}</span>
+              <span className={cn("ml-auto", h.error ? "text-destructive" : "text-muted-foreground")}>{h.status}</span>
+            </div>
+            {h.error && <p className="mt-1 text-destructive">{h.error}</p>}
+          </div>
+        ))}
+      </div>
+    </CardContent></Card>
+  );
+}
+
 
 /* ---------- Version card ---------- */
 function RenderCard({
