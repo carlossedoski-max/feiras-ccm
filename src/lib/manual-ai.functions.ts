@@ -5,6 +5,7 @@ const InputSchema = z.object({
   filename: z.string().min(1),
   mime: z.string().min(1),
   dataBase64: z.string().min(1),
+  mode: z.enum(["openai", "lovable", "auto"]).default("auto"),
 });
 
 const SYSTEM_PROMPT = `Você é um assistente especialista em análise de MANUAIS DO EXPOSITOR de feiras e eventos B2B no Brasil.
@@ -23,6 +24,8 @@ Responda SOMENTE em JSON válido, sem markdown, sem comentários, com esta estru
   "documents": ["documento exigido 1", "..."],
   "assemblyRules": ["regra 1", "..."],
   "disassemblyRules": ["regra 1", "..."],
+  "safetyRules": ["regra de segurança 1", "..."],
+  "fineRisks": ["risco de multa/penalidade 1", "..."],
   "attentionPoints": ["alerta 1", "..."],
   "suggestedTasks": [
     {
@@ -40,87 +43,71 @@ Regras:
 - Todo texto em português do Brasil.
 - Datas SEMPRE no formato YYYY-MM-DD. Se o manual só disser "até 30 dias antes", deixe vazio.
 - Não invente informações que não estejam no manual.
-- Foque em prazos, taxas obrigatórias, documentos, regras de montagem/desmontagem, proibições e pontos de atenção.
+- Foque em prazos, taxas obrigatórias, documentos, regras de montagem/desmontagem, segurança, proibições, riscos de multa e pontos de atenção.
 - Gere entre 8 e 20 tarefas sugeridas cobrindo credenciais, contratos, pagamentos, montagem, desmontagem, materiais e documentos.`;
+
+export interface ManualAiResult {
+  summary: string;
+  deadlines: Array<{ description: string; date?: string; importance?: string; consequence?: string }>;
+  allowed: string[];
+  forbidden: string[];
+  fees: Array<{ name: string; description?: string; estimatedValue?: string }>;
+  documents: string[];
+  assemblyRules: string[];
+  disassemblyRules: string[];
+  safetyRules: string[];
+  fineRisks: string[];
+  attentionPoints: string[];
+  suggestedTasks: Array<{
+    title: string;
+    description?: string;
+    deadline?: string;
+    priority: "Baixa" | "Média" | "Alta" | "Urgente";
+    category: string;
+    responsible?: string;
+  }>;
+  provider: string;
+  model: string;
+}
 
 export const analyzeExpoManual = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => InputSchema.parse(data))
-  .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada.");
+  .handler(async ({ data }): Promise<ManualAiResult> => {
+    const { callTextAi, parseJsonContent, mediaBlock } = await import("./ai-provider.server");
+    const { filename, mime, dataBase64, mode } = data;
 
-    const { filename, mime, dataBase64 } = data;
-
-    // Build multimodal content block: image_url for images, file for PDFs/docs.
-    let mediaBlock: Record<string, unknown>;
-    if (mime.startsWith("image/")) {
-      mediaBlock = { type: "image_url", image_url: { url: `data:${mime};base64,${dataBase64}` } };
-    } else {
-      mediaBlock = {
-        type: "file",
-        file: { filename, file_data: `data:${mime};base64,${dataBase64}` },
-      };
-    }
-
-    const body = {
-      model: "google/gemini-3-flash-preview",
-      response_format: { type: "json_object" },
-      messages: [
+    const res = await callTextAi(
+      [
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
           content: [
             { type: "text", text: `Analise este manual do expositor (${filename}) e retorne o JSON pedido.` },
-            mediaBlock,
+            mediaBlock(filename, mime, dataBase64),
           ],
         },
       ],
-    };
+      { mode, jsonMode: true },
+    );
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
-      },
-      body: JSON.stringify(body),
-    });
+    const parsed = parseJsonContent(res.content);
+    const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+    const strs = (v: unknown) => (Array.isArray(v) ? v.map(String) : []);
 
-    if (!res.ok) {
-      const errText = await res.text();
-      if (res.status === 429) throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
-      if (res.status === 402) throw new Error("Créditos de IA esgotados. Adicione créditos no workspace.");
-      throw new Error(`Falha ao analisar manual (${res.status}): ${errText.slice(0, 300)}`);
-    }
-
-    const json = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
-    const content = json.choices?.[0]?.message?.content ?? "";
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(content);
-    } catch {
-      // try to extract JSON block
-      const match = content.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error("A IA não retornou JSON válido.");
-      parsed = JSON.parse(match[0]);
-    }
-    return parsed as {
-      summary: string;
-      deadlines: Array<{ description: string; date?: string; importance?: string; consequence?: string }>;
-      allowed: string[];
-      forbidden: string[];
-      fees: Array<{ name: string; description?: string; estimatedValue?: string }>;
-      documents: string[];
-      assemblyRules: string[];
-      disassemblyRules: string[];
-      attentionPoints: string[];
-      suggestedTasks: Array<{
-        title: string;
-        description?: string;
-        deadline?: string;
-        priority: "Baixa" | "Média" | "Alta" | "Urgente";
-        category: string;
-        responsible?: string;
-      }>;
+    return {
+      summary: String(parsed['summary'] ?? ""),
+      deadlines: arr(parsed['deadlines']),
+      allowed: strs(parsed['allowed']),
+      forbidden: strs(parsed['forbidden']),
+      fees: arr(parsed['fees']),
+      documents: strs(parsed['documents']),
+      assemblyRules: strs(parsed['assemblyRules']),
+      disassemblyRules: strs(parsed['disassemblyRules']),
+      safetyRules: strs(parsed['safetyRules']),
+      fineRisks: strs(parsed['fineRisks']),
+      attentionPoints: strs(parsed['attentionPoints']),
+      suggestedTasks: arr(parsed['suggestedTasks']),
+      provider: res.provider,
+      model: res.model,
     };
   });
