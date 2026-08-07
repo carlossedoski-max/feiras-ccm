@@ -90,8 +90,17 @@ export interface ProjectRender {
   notes: string | null;
   responsible: string | null;
   status: string;
+  origin: string | null;
+  mode: string | null;
   created_at: string;
 }
+
+export const IMAGE_ORIGINS = [
+  "Gerada pela ferramenta",
+  "Enviada manualmente",
+  "Recebida da montadora",
+  "Referência externa",
+] as const;
 
 export async function fetchRenders(projectId: string): Promise<ProjectRender[]> {
   const { data, error } = await supabase
