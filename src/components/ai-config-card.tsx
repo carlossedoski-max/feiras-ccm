@@ -6,8 +6,9 @@ import { getAiStatus } from "@/lib/ai-config.functions";
 
 export function AiConfigCard() {
   const { data } = useQuery({ queryKey: ["ai-status"], queryFn: () => getAiStatus() });
-  const openai = data?.openai ?? false;
-  const lovable = data?.lovable ?? false;
+  const openai = data?.openaiConfigured ?? false;
+  const lovable = data?.lovableConfigured ?? false;
+
 
   return (
     <Card>
