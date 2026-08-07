@@ -57,6 +57,19 @@ export interface SuggestedTask {
 
 export interface ManualAnalysisDeadline { description: string; date?: string; importance?: string; consequence?: string }
 export interface ManualAnalysisFee { name: string; description?: string; estimatedValue?: string }
+export type ManualMode = "OpenAI API" | "Lovable AI" | "Manual assistido" | "Template";
+export interface ManualRun {
+  id: string;
+  at: string;
+  filename: string;
+  mode: ManualMode;
+  model?: string;
+  status: "Concluída" | "Erro" | "Salvo sem análise";
+  error?: string;
+  summary?: string;
+  suggestedCount: number;
+  addedCount: number;
+}
 export interface ManualAnalysis {
   filename: string;
   analyzedAt: string;
@@ -68,17 +81,65 @@ export interface ManualAnalysis {
   documents: string[];
   assemblyRules: string[];
   disassemblyRules: string[];
+  safetyRules?: string[];
+  fineRisks?: string[];
   attentionPoints: string[];
   suggestedTasks: SuggestedTask[];
   addedTaskIds: string[];
+  mode?: ManualMode;
+  model?: string;
+  filePath?: string;
+  history?: ManualRun[];
 }
 
-export const DOCUMENT_TYPES = ["Contrato","Termo de participação","Regulamento","Manual do expositor","Planta do estande","Nota fiscal","Recibo","Comprovante de pagamento","Orçamento","Autorização","Outro"] as const;
-export const DOCUMENT_STATUSES = ["Pendente","Recebido","Enviado para assinatura","Assinado","Arquivado","Cancelado"] as const;
+/** Categorias da aba "Documentos da Feira". */
+export const FAIR_DOC_CATEGORIES = [
+  "Contrato do terreno/espaço", "Contrato da montadora", "Contrato de limpeza", "Contrato de segurança",
+  "Contrato de transporte", "Contrato de internet", "Contrato de energia", "Proposta comercial",
+  "Orçamento", "Nota fiscal", "Comprovante de pagamento", "Manual do expositor", "Planta/mapa",
+  "Briefing", "Projeto 3D", "Credenciais", "Autorização", "Documento da organização",
+  "Foto da montagem", "Relatório", "Outro",
+] as const;
+export type FairDocCategory = typeof FAIR_DOC_CATEGORIES[number];
+
+export const FAIR_DOC_STATUSES = [
+  "Pendente", "Recebido", "Em análise", "Aprovado", "Assinado", "Pago", "Arquivado", "Vencido", "Cancelado",
+] as const;
+export type FairDocStatus = typeof FAIR_DOC_STATUSES[number];
+
+/** Categorias obrigatórias — geram alerta quando não houver documento anexado. */
+export const REQUIRED_DOC_CATEGORIES: FairDocCategory[] = [
+  "Contrato do terreno/espaço", "Contrato da montadora", "Manual do expositor",
+];
+
+/** Documento da feira (compatível com os registros antigos de "Contratos"). */
 export interface DocumentItem {
-  id: string; name: string; type: typeof DOCUMENT_TYPES[number]; supplier?: string;
-  receivedAt?: string; status: typeof DOCUMENT_STATUSES[number]; link?: string; notes?: string;
+  id: string;
+  name: string;
+  category?: FairDocCategory;
+  supplier?: string;
+  fairName?: string;
+  docDate?: string;
+  dueDate?: string;
+  status: string;
+  responsible?: string;
+  notes?: string;
+  link?: string;
+  filePath?: string;
+  fileName?: string;
+  fileType?: string;
+  archived?: boolean;
+  createdAt?: string;
+  /** legado */
+  type?: string;
+  receivedAt?: string;
 }
+export type FairDocument = DocumentItem;
+
+/** Legado — mantido para leitura de registros antigos. */
+export const DOCUMENT_TYPES = ["Contrato","Termo de participação","Regulamento","Manual do expositor","Planta do estande","Nota fiscal","Recibo","Comprovante de pagamento","Orçamento","Autorização","Outro"] as const;
+export const DOCUMENT_STATUSES = FAIR_DOC_STATUSES;
+
 
 export const COST_CATEGORIES = ["Espaço","Energia","Limpeza","Segurança","Montagem","Credenciais","Internet","Transporte","Hospedagem","Alimentação","Brindes","Impressos","Outros"] as const;
 export const PAYMENT_STATUSES = ["Aguardando orçamento","Aguardando aprovação","Aguardando pagamento","Pago","Cancelado"] as const;
@@ -141,6 +202,8 @@ export interface ReadinessEntry {
   note?: string;
   filePath?: string;
   fileName?: string;
+  /** Documento vinculado da aba "Documentos da Feira". */
+  documentId?: string;
 }
 export interface ReadinessState {
   items?: Record<string, ReadinessEntry>;

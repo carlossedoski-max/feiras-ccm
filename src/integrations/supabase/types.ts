@@ -133,6 +133,7 @@ export type Database = {
           created_by: string | null
           estimated_value: number | null
           fair_type: string | null
+          history: Json
           id: string
           images: Json
           main_brand: string | null
@@ -166,6 +167,7 @@ export type Database = {
           created_by?: string | null
           estimated_value?: number | null
           fair_type?: string | null
+          history?: Json
           id?: string
           images?: Json
           main_brand?: string | null
@@ -199,6 +201,7 @@ export type Database = {
           created_by?: string | null
           estimated_value?: number | null
           fair_type?: string | null
+          history?: Json
           id?: string
           images?: Json
           main_brand?: string | null
@@ -245,7 +248,9 @@ export type Database = {
           image_type: string
           label: string
           main_brand: string | null
+          mode: string | null
           notes: string | null
+          origin: string
           period: string | null
           project_id: string
           prompt: string | null
@@ -273,7 +278,9 @@ export type Database = {
           image_type?: string
           label?: string
           main_brand?: string | null
+          mode?: string | null
           notes?: string | null
+          origin?: string
           period?: string | null
           project_id: string
           prompt?: string | null
@@ -301,7 +308,9 @@ export type Database = {
           image_type?: string
           label?: string
           main_brand?: string | null
+          mode?: string | null
           notes?: string | null
+          origin?: string
           period?: string | null
           project_id?: string
           prompt?: string | null

@@ -88,9 +88,27 @@ export interface ImageProject {
   quote_status: string | null;
   estimated_value: number | null;
   supplier_notes: string | null;
+  history?: ProjectHistoryEntry[];
   created_at: string;
   updated_at: string;
 }
+
+/** Histórico de tentativas e versões do projeto. */
+export interface ProjectHistoryEntry {
+  id: string;
+  at: string;
+  action: string;
+  status: string;
+  mode: "OpenAI API" | "Lovable AI" | "Template" | "Manual";
+  model?: string;
+  error?: string;
+  detail?: string;
+}
+
+export function historyEntry(e: Omit<ProjectHistoryEntry, "id" | "at">): ProjectHistoryEntry {
+  return { id: crypto.randomUUID(), at: new Date().toISOString(), ...e };
+}
+
 
 
 export type ImageProjectInput = Partial<Omit<ImageProject, "id" | "created_at" | "updated_at">> & {
