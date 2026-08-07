@@ -202,6 +202,8 @@ export interface ReadinessEntry {
   note?: string;
   filePath?: string;
   fileName?: string;
+  /** Documento vinculado da aba "Documentos da Feira". */
+  documentId?: string;
 }
 export interface ReadinessState {
   items?: Record<string, ReadinessEntry>;
