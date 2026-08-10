@@ -354,30 +354,8 @@ function ConfirmDelete({ onDelete, label = "Excluir item?" }: { onDelete: () => 
   );
 }
 
-// ============ DOCUMENTOS ============
-function DocumentsTab({ fair }: { fair: Fair }) {
-  const upd = (id: string, patch: Partial<DocumentItem>) => actions.updateChild(fair.id, "documents", l => l.map(i => i.id === id ? { ...i, ...patch } : i));
-  const add = () => actions.updateChild(fair.id, "documents", l => [...l, { id: uid(), name: "Novo documento", type: "Contrato", status: "Pendente" }]);
-  const del = (id: string) => actions.updateChild(fair.id, "documents", l => l.filter(i => i.id !== id));
-  return (
-    <TableCard title="Contratos e Documentos" onAdd={add} onExport={() => exportCSV(`documentos-${fair.name}.csv`, fair.documents)}>
-      <ResponsiveTable headers={["Nome", "Tipo", "Fornecedor", "Recebido em", "Status", "Link", "Observação", ""]}>
-        {fair.documents.map(d => (
-          <tr key={d.id} className="border-t align-middle">
-            <td className="p-2"><Input value={d.name} onChange={e => upd(d.id, { name: e.target.value })} /></td>
-            <td className="p-2"><Select value={d.type} onValueChange={v => upd(d.id, { type: v as DocumentItem["type"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{DOCUMENT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select></td>
-            <td className="p-2"><Input value={d.supplier ?? ""} onChange={e => upd(d.id, { supplier: e.target.value })} /></td>
-            <td className="p-2"><Input type="date" value={d.receivedAt ?? ""} onChange={e => upd(d.id, { receivedAt: e.target.value })} /></td>
-            <td className="p-2"><Select value={d.status} onValueChange={v => upd(d.id, { status: v as DocumentItem["status"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{DOCUMENT_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></td>
-            <td className="p-2"><Input placeholder="https://..." value={d.link ?? ""} onChange={e => upd(d.id, { link: e.target.value })} /></td>
-            <td className="p-2"><Input value={d.notes ?? ""} onChange={e => upd(d.id, { notes: e.target.value })} /></td>
-            <td className="p-2"><ConfirmDelete onDelete={() => del(d.id)} /></td>
-          </tr>
-        ))}
-      </ResponsiveTable>
-    </TableCard>
-  );
-}
+
+
 
 // ============ CUSTOS ============
 function CostsTab({ fair }: { fair: Fair }) {
