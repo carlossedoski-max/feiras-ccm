@@ -298,45 +298,24 @@ export function ConceptImageTab({
           </div>
         </div>
 
-        {/* ---- Ações separadas: prompt x imagem ---- */}
-        <div className="grid gap-3 border-t pt-4 md:grid-cols-2">
-          <div className="space-y-2 rounded-md border p-3">
-            <div className="flex items-center gap-2 text-sm font-semibold"><FileText className="h-4 w-4" /> Gerar prompt profissional</div>
-            <p className="text-xs text-muted-foreground">Não consome crédito de imagem. Funciona mesmo sem IA disponível.</p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => promptByTemplate()}>
-                <Wand2 className="h-4 w-4" /> Gerar por template
-              </Button>
-              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => promptByAi()}>
-                {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar com IA
-              </Button>
-            </div>
+        {/* ---- Ação principal: gerar imagem conceitual com IA ---- */}
+        <div className="space-y-3 border-t pt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="lg" disabled={busy !== null} onClick={() => void runFull()}>
+              {busy === "full" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual com IA
+            </Button>
+            <span className="text-xs text-muted-foreground">A IA cria o conceito visual a partir do briefing e das opções acima.</span>
           </div>
 
-          <div className="space-y-2 rounded-md border p-3">
-            <div className="flex items-center gap-2 text-sm font-semibold"><ImageIcon className="h-4 w-4" /> Gerar imagem conceitual</div>
-            <p className="text-xs text-muted-foreground">Esta ação pode consumir crédito/API de imagem.</p>
-            <div className="flex flex-wrap gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" disabled={busy !== null}>
-                    {busy === "image" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Gerar imagem conceitual?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta ação pode gerar consumo na API configurada ou nos créditos de imagem. Se preferir, gere apenas o prompt — ele não consome crédito de imagem.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <Button variant="outline" onClick={() => promptByTemplate()}>Gerar apenas prompt</Button>
-                    <AlertDialogAction onClick={() => void makeImage()}>Continuar</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+          <details className="rounded-md border p-3">
+            <summary className="cursor-pointer text-sm font-medium">Opções avançadas</summary>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => void promptByAi()}>
+                {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />} Gerar apenas o prompt
+              </Button>
+              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => void makeImage()}>
+                <ImageIcon className="h-4 w-4" /> Gerar imagem com o prompt atual
+              </Button>
               <ManualImageUpload
                 project={project}
                 nextVersion={(renders[0]?.version ?? 0) + 1}
@@ -348,8 +327,9 @@ export function ConceptImageTab({
                 }}
               />
             </div>
-          </div>
+          </details>
         </div>
+
 
         {promptText && (
           <details className="rounded-md border bg-muted/30 p-3">
