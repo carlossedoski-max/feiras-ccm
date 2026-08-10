@@ -33,7 +33,7 @@ import {
 import { generateConceptImage, generateConceptPrompt } from "@/lib/project-image.functions";
 import { buildTemplatePrompt } from "@/lib/templates";
 import { fetchSuppliers, type Supplier } from "@/lib/suppliers";
-import { fetchSuppliers, type Supplier } from "@/lib/suppliers";
+
 import { actions, createEmptyFair } from "@/lib/store";
 
 const NONE = "__none__";
