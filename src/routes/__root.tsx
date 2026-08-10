@@ -9,7 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut, Images } from "lucide-react";
+import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut, Images, Settings } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -141,6 +141,9 @@ function AppShell({ children }: { children: ReactNode }) {
             </Link>
             <Link to="/projetos-imagem" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <Images className="h-4 w-4" /><span className="hidden sm:inline">Projetos por Imagem</span>
+            </Link>
+            <Link to="/configuracoes-ia" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+              <Settings className="h-4 w-4" /><span className="hidden lg:inline">Configurações de IA</span>
             </Link>
             <Link to="/auxilio" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <LifeBuoy className="h-4 w-4" /><span className="hidden sm:inline">Fornecedores</span>
