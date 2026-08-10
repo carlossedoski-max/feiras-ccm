@@ -32,7 +32,7 @@ import {
 } from "@/lib/project-renders";
 import { generateConceptImage, generateConceptPrompt } from "@/lib/project-image.functions";
 import { buildTemplatePrompt } from "@/lib/templates";
-import { AiConfigCard } from "@/components/ai-config-card";
+import { fetchSuppliers, type Supplier } from "@/lib/suppliers";
 import { fetchSuppliers, type Supplier } from "@/lib/suppliers";
 import { actions, createEmptyFair } from "@/lib/store";
 
