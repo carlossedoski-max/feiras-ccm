@@ -373,16 +373,17 @@ export function ConceptImageTab({
         )}
 
         <div className="space-y-2 border-t pt-3">
-          <Label>Variações</Label>
-          <p className="text-xs text-muted-foreground">Gera o prompt da variação. Depois use “Gerar imagem conceitual” se quiser a imagem.</p>
+          <Label>Variações do conceito</Label>
+          <p className="text-xs text-muted-foreground">Cada variação gera uma nova imagem conceitual com IA e entra no histórico de versões.</p>
           <div className="flex flex-wrap gap-2">
             {VARIATIONS.map((v) => (
-              <Button key={v.label} variant="outline" size="sm" disabled={busy !== null} onClick={() => promptByTemplate(v)}>
-                <Wand2 className="h-4 w-4" /> {v.label}
+              <Button key={v.label} variant="outline" size="sm" disabled={busy !== null} onClick={() => void runFull(v)}>
+                {busy === v.label ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} {v.label}
               </Button>
             ))}
           </div>
         </div>
+
 
         <p className="text-xs text-muted-foreground">
           Imagem meramente conceitual — não substitui projeto executivo, planta técnica, ART/RRT ou medidas finais da montadora.
