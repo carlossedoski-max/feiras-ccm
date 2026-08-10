@@ -155,15 +155,16 @@ export function ConceptImageTab({
     }
   }
 
-  /** IMAGEM — separado do prompt; só roda com confirmação explícita. */
-  async function makeImage(variation?: { label: string; hint: string }) {
-    let prompt = promptText.trim();
+  /** Gera a imagem conceitual a partir do prompt atual (ou do prompt recebido). */
+  async function makeImage(variation?: { label: string; hint: string }, override?: string) {
+    let prompt = (override ?? promptText).trim();
     if (!prompt) {
       prompt = buildTemplatePrompt(templateData(variation?.hint));
       setPromptText(prompt);
-      setPromptSource("Template (sem consumo de crédito)");
+      setPromptSource("Base interna");
     }
     setBusy(variation?.label ?? "image");
+
     try {
       const res = await generateConceptImage({ data: { projectId: project.id, prompt } });
       const nextVersion = (renders[0]?.version ?? 0) + 1;
