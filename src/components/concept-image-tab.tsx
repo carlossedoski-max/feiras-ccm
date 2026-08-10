@@ -207,9 +207,40 @@ export function ConceptImageTab({
     }
   }
 
+  /** Fluxo simples: IA cria o prompt e já gera a imagem conceitual. */
+  async function runFull(variation?: { label: string; hint: string }) {
+    setBusy(variation?.label ?? "full");
+    try {
+      let prompt = "";
+      try {
+        const res = await generateConceptPrompt({
+          data: {
+            briefing, style, period, ambience, budgetTier, targetBudget, fairType,
+            city: project.city ?? "", state: project.state ?? "",
+            mainBrand, requiredItems: required, extraNotes,
+            variationHint: variation?.hint ?? "", brandFidelity, mode: "auto",
+          },
+        });
+        prompt = res.prompt;
+        setPromptText(res.prompt);
+        setPromptSource(`${res.provider} · ${res.model}`);
+        setPromptSummary(res.visualSummary);
+        setDefinedItems(res.definedItems);
+        setAiItems(res.aiItems);
+      } catch {
+        prompt = buildTemplatePrompt(templateData(variation?.hint));
+        setPromptText(prompt);
+        setPromptSource("Base interna");
+      }
+      await makeImage(variation, prompt);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <AiConfigCard />
+
 
       <Card><CardContent className="space-y-4 p-5">
         <div className="flex flex-wrap items-center gap-2">
