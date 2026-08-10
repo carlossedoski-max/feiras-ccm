@@ -83,7 +83,7 @@ function FairDetail() {
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="readiness">Feira pronta?</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
-            <TabsTrigger value="documents">Contratos</TabsTrigger>
+            <TabsTrigger value="documents">Documentos da Feira</TabsTrigger>
             <TabsTrigger value="costs">Taxas e Custos</TabsTrigger>
             <TabsTrigger value="credentials">Credenciais</TabsTrigger>
             <TabsTrigger value="products">Produtos</TabsTrigger>
@@ -97,7 +97,7 @@ function FairDetail() {
         <TabsContent value="overview"><OverviewTab fair={fair} onUpdate={update} /></TabsContent>
         <TabsContent value="readiness"><ReadinessTab fair={fair} /></TabsContent>
         <TabsContent value="checklist"><ChecklistTab fair={fair} /></TabsContent>
-        <TabsContent value="documents"><DocumentsTab fair={fair} /></TabsContent>
+        <TabsContent value="documents"><FairDocumentsTab fair={fair} /></TabsContent>
         <TabsContent value="costs"><CostsTab fair={fair} /></TabsContent>
         <TabsContent value="credentials"><CredentialsTab fair={fair} /></TabsContent>
         <TabsContent value="products"><ProductsTab fair={fair} /></TabsContent>
@@ -105,6 +105,7 @@ function FairDetail() {
         <TabsContent value="suppliers"><SuppliersTab fair={fair} /></TabsContent>
         <TabsContent value="manual"><ManualTab fair={fair} /></TabsContent>
         <TabsContent value="report"><ReportTab fair={fair} /></TabsContent>
+
       </Tabs>
     </div>
   );
