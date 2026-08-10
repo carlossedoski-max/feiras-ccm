@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedProjetosImagemRouteImport } from './routes/_authenticated/projetos-imagem'
+import { Route as AuthenticatedConfiguracoesIaRouteImport } from './routes/_authenticated/configuracoes-ia'
 import { Route as AuthenticatedAuxilioRouteImport } from './routes/_authenticated/auxilio'
 import { Route as AuthenticatedFairsIndexRouteImport } from './routes/_authenticated/fairs.index'
 import { Route as AuthenticatedFairsFairIdRouteImport } from './routes/_authenticated/fairs.$fairId'
@@ -37,6 +38,12 @@ const AuthenticatedProjetosImagemRoute =
     path: '/projetos-imagem',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedConfiguracoesIaRoute =
+  AuthenticatedConfiguracoesIaRouteImport.update({
+    id: '/configuracoes-ia',
+    path: '/configuracoes-ia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAuxilioRoute = AuthenticatedAuxilioRouteImport.update({
   id: '/auxilio',
   path: '/auxilio',
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/auxilio': typeof AuthenticatedAuxilioRoute
+  '/configuracoes-ia': typeof AuthenticatedConfiguracoesIaRoute
   '/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/fairs/$fairId': typeof AuthenticatedFairsFairIdRoute
   '/fairs/': typeof AuthenticatedFairsIndexRoute
@@ -65,6 +73,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/auxilio': typeof AuthenticatedAuxilioRoute
+  '/configuracoes-ia': typeof AuthenticatedConfiguracoesIaRoute
   '/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/': typeof AuthenticatedIndexRoute
   '/fairs/$fairId': typeof AuthenticatedFairsFairIdRoute
@@ -75,6 +84,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/auxilio': typeof AuthenticatedAuxilioRoute
+  '/_authenticated/configuracoes-ia': typeof AuthenticatedConfiguracoesIaRoute
   '/_authenticated/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/fairs/$fairId': typeof AuthenticatedFairsFairIdRoute
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/auxilio'
+    | '/configuracoes-ia'
     | '/projetos-imagem'
     | '/fairs/$fairId'
     | '/fairs/'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/auxilio'
+    | '/configuracoes-ia'
     | '/projetos-imagem'
     | '/'
     | '/fairs/$fairId'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/auxilio'
+    | '/_authenticated/configuracoes-ia'
     | '/_authenticated/projetos-imagem'
     | '/_authenticated/'
     | '/_authenticated/fairs/$fairId'
@@ -143,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjetosImagemRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes-ia': {
+      id: '/_authenticated/configuracoes-ia'
+      path: '/configuracoes-ia'
+      fullPath: '/configuracoes-ia'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesIaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/auxilio': {
       id: '/_authenticated/auxilio'
       path: '/auxilio'
@@ -169,6 +189,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuxilioRoute: typeof AuthenticatedAuxilioRoute
+  AuthenticatedConfiguracoesIaRoute: typeof AuthenticatedConfiguracoesIaRoute
   AuthenticatedProjetosImagemRoute: typeof AuthenticatedProjetosImagemRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedFairsFairIdRoute: typeof AuthenticatedFairsFairIdRoute
@@ -177,6 +198,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuxilioRoute: AuthenticatedAuxilioRoute,
+  AuthenticatedConfiguracoesIaRoute: AuthenticatedConfiguracoesIaRoute,
   AuthenticatedProjetosImagemRoute: AuthenticatedProjetosImagemRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedFairsFairIdRoute: AuthenticatedFairsFairIdRoute,
@@ -193,13 +215,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

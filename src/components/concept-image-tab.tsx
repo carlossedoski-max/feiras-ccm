@@ -17,11 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+
 
 import {
   downloadDoc, historyEntry, patchProject, projectSignedUrl, uploadProjectFile,
@@ -35,8 +32,8 @@ import {
 } from "@/lib/project-renders";
 import { generateConceptImage, generateConceptPrompt } from "@/lib/project-image.functions";
 import { buildTemplatePrompt } from "@/lib/templates";
-import { AiConfigCard } from "@/components/ai-config-card";
 import { fetchSuppliers, type Supplier } from "@/lib/suppliers";
+
 import { actions, createEmptyFair } from "@/lib/store";
 
 const NONE = "__none__";
@@ -155,15 +152,16 @@ export function ConceptImageTab({
     }
   }
 
-  /** IMAGEM — separado do prompt; só roda com confirmação explícita. */
-  async function makeImage(variation?: { label: string; hint: string }) {
-    let prompt = promptText.trim();
+  /** Gera a imagem conceitual a partir do prompt atual (ou do prompt recebido). */
+  async function makeImage(variation?: { label: string; hint: string }, override?: string) {
+    let prompt = (override ?? promptText).trim();
     if (!prompt) {
       prompt = buildTemplatePrompt(templateData(variation?.hint));
       setPromptText(prompt);
-      setPromptSource("Template (sem consumo de crédito)");
+      setPromptSource("Base interna");
     }
     setBusy(variation?.label ?? "image");
+
     try {
       const res = await generateConceptImage({ data: { projectId: project.id, prompt } });
       const nextVersion = (renders[0]?.version ?? 0) + 1;
@@ -207,9 +205,40 @@ export function ConceptImageTab({
     }
   }
 
+  /** Fluxo simples: IA cria o prompt e já gera a imagem conceitual. */
+  async function runFull(variation?: { label: string; hint: string }) {
+    setBusy(variation?.label ?? "full");
+    try {
+      let prompt = "";
+      try {
+        const res = await generateConceptPrompt({
+          data: {
+            briefing, style, period, ambience, budgetTier, targetBudget, fairType,
+            city: project.city ?? "", state: project.state ?? "",
+            mainBrand, requiredItems: required, extraNotes,
+            variationHint: variation?.hint ?? "", brandFidelity, mode: "auto",
+          },
+        });
+        prompt = res.prompt;
+        setPromptText(res.prompt);
+        setPromptSource(`${res.provider} · ${res.model}`);
+        setPromptSummary(res.visualSummary);
+        setDefinedItems(res.definedItems);
+        setAiItems(res.aiItems);
+      } catch {
+        prompt = buildTemplatePrompt(templateData(variation?.hint));
+        setPromptText(prompt);
+        setPromptSource("Base interna");
+      }
+      await makeImage(variation, prompt);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <AiConfigCard />
+
 
       <Card><CardContent className="space-y-4 p-5">
         <div className="flex flex-wrap items-center gap-2">
@@ -298,45 +327,24 @@ export function ConceptImageTab({
           </div>
         </div>
 
-        {/* ---- Ações separadas: prompt x imagem ---- */}
-        <div className="grid gap-3 border-t pt-4 md:grid-cols-2">
-          <div className="space-y-2 rounded-md border p-3">
-            <div className="flex items-center gap-2 text-sm font-semibold"><FileText className="h-4 w-4" /> Gerar prompt profissional</div>
-            <p className="text-xs text-muted-foreground">Não consome crédito de imagem. Funciona mesmo sem IA disponível.</p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={() => promptByTemplate()}>
-                <Wand2 className="h-4 w-4" /> Gerar por template
-              </Button>
-              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => promptByAi()}>
-                {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar com IA
-              </Button>
-            </div>
+        {/* ---- Ação principal: gerar imagem conceitual com IA ---- */}
+        <div className="space-y-3 border-t pt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="lg" disabled={busy !== null} onClick={() => void runFull()}>
+              {busy === "full" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual com IA
+            </Button>
+            <span className="text-xs text-muted-foreground">A IA cria o conceito visual a partir do briefing e das opções acima.</span>
           </div>
 
-          <div className="space-y-2 rounded-md border p-3">
-            <div className="flex items-center gap-2 text-sm font-semibold"><ImageIcon className="h-4 w-4" /> Gerar imagem conceitual</div>
-            <p className="text-xs text-muted-foreground">Esta ação pode consumir crédito/API de imagem.</p>
-            <div className="flex flex-wrap gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" disabled={busy !== null}>
-                    {busy === "image" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Gerar imagem conceitual
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Gerar imagem conceitual?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta ação pode gerar consumo na API configurada ou nos créditos de imagem. Se preferir, gere apenas o prompt — ele não consome crédito de imagem.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <Button variant="outline" onClick={() => promptByTemplate()}>Gerar apenas prompt</Button>
-                    <AlertDialogAction onClick={() => void makeImage()}>Continuar</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+          <details className="rounded-md border p-3">
+            <summary className="cursor-pointer text-sm font-medium">Opções avançadas</summary>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => void promptByAi()}>
+                {busy === "prompt" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />} Gerar apenas o prompt
+              </Button>
+              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => void makeImage()}>
+                <ImageIcon className="h-4 w-4" /> Gerar imagem com o prompt atual
+              </Button>
               <ManualImageUpload
                 project={project}
                 nextVersion={(renders[0]?.version ?? 0) + 1}
@@ -348,41 +356,42 @@ export function ConceptImageTab({
                 }}
               />
             </div>
-          </div>
+          </details>
         </div>
 
+
         {promptText && (
-          <div className="space-y-2 rounded-md border bg-muted/30 p-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Label className="text-sm font-semibold">Prompt gerado</Label>
-              {promptSource && <Badge variant="outline" className="text-[11px]">{promptSource}</Badge>}
-              <Button size="sm" variant="outline" className="ml-auto" onClick={() => copy(promptText, "Prompt")}>
-                <Copy className="h-4 w-4" /> Copiar prompt
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => { saveProject.mutate({ briefing, history: [historyEntry({ action: "Prompt salvo no projeto", status: "Prompt salvo", mode: "Template", detail: promptText.slice(0, 500) }), ...history].slice(0, 60) }); toast.success("Prompt salvo no projeto."); }}>
-                <Save className="h-4 w-4" /> Salvar prompt no projeto
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setPromptText("")}>Fechar</Button>
+          <details className="rounded-md border bg-muted/30 p-3">
+            <summary className="cursor-pointer text-sm font-semibold">Prompt técnico usado pela IA (avançado)</summary>
+            <div className="mt-2 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {promptSource && <Badge variant="outline" className="text-[11px]">{promptSource}</Badge>}
+                <Button size="sm" variant="outline" className="ml-auto" onClick={() => copy(promptText, "Prompt")}>
+                  <Copy className="h-4 w-4" /> Copiar prompt
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => { saveProject.mutate({ briefing, history: [historyEntry({ action: "Prompt salvo no projeto", status: "Prompt salvo", mode: "Template", detail: promptText.slice(0, 500) }), ...history].slice(0, 60) }); toast.success("Prompt salvo no projeto."); }}>
+                  <Save className="h-4 w-4" /> Salvar prompt
+                </Button>
+              </div>
+              <Textarea rows={7} value={promptText} onChange={(e) => setPromptText(e.target.value)} className="font-mono text-xs" />
+              {promptSummary && <p className="whitespace-pre-wrap text-xs text-muted-foreground">{promptSummary}</p>}
             </div>
-            <Textarea rows={7} value={promptText} onChange={(e) => setPromptText(e.target.value)} className="font-mono text-xs" />
-            <p className="text-xs text-muted-foreground">
-              Você pode editar o prompt acima antes de gerar a imagem, copiá-lo para usar em outra ferramenta ou enviar a imagem manualmente depois.
-            </p>
-            {promptSummary && <p className="whitespace-pre-wrap text-xs text-muted-foreground">{promptSummary}</p>}
-          </div>
+          </details>
         )}
 
+
         <div className="space-y-2 border-t pt-3">
-          <Label>Variações</Label>
-          <p className="text-xs text-muted-foreground">Gera o prompt da variação. Depois use “Gerar imagem conceitual” se quiser a imagem.</p>
+          <Label>Variações do conceito</Label>
+          <p className="text-xs text-muted-foreground">Cada variação gera uma nova imagem conceitual com IA e entra no histórico de versões.</p>
           <div className="flex flex-wrap gap-2">
             {VARIATIONS.map((v) => (
-              <Button key={v.label} variant="outline" size="sm" disabled={busy !== null} onClick={() => promptByTemplate(v)}>
-                <Wand2 className="h-4 w-4" /> {v.label}
+              <Button key={v.label} variant="outline" size="sm" disabled={busy !== null} onClick={() => void runFull(v)}>
+                {busy === v.label ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} {v.label}
               </Button>
             ))}
           </div>
         </div>
+
 
         <p className="text-xs text-muted-foreground">
           Imagem meramente conceitual — não substitui projeto executivo, planta técnica, ART/RRT ou medidas finais da montadora.

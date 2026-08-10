@@ -3,11 +3,12 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, Trash2, Download, FileText, Check } from "lucide-react";
 import {
   useStore, actions, uid, fmtDate, fmtMoney, exportCSV, deadlineTone, toneClasses,
-  FAIR_STATUSES, CHECKLIST_STATUSES, DOCUMENT_TYPES, DOCUMENT_STATUSES,
+  FAIR_STATUSES, CHECKLIST_STATUSES,
   COST_CATEGORIES, PAYMENT_STATUSES, CREDENTIAL_TYPES, CREDENTIAL_STATUSES,
   EXPO_TYPES, LOGISTIC_STATUSES, MATERIAL_CATEGORIES, MATERIAL_STATUSES, SUPPLIER_SERVICES,
   PRIORITIES, RESPONSIBLE_SUGGESTIONS,
-  type Fair, type ChecklistItem, type ChecklistPhase, type DocumentItem, type CostItem,
+  type Fair, type ChecklistItem, type ChecklistPhase, type CostItem,
+
   type CredentialItem, type ProductItem, type MaterialItem, type SupplierItem, type FairStatus, type Priority,
 } from "@/lib/store";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ManualTab } from "@/components/manual-tab";
+import { FairDocumentsTab } from "@/components/fair-documents-tab";
+
 import { ReadinessTab } from "@/components/readiness-tab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,7 +86,7 @@ function FairDetail() {
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="readiness">Feira pronta?</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
-            <TabsTrigger value="documents">Contratos</TabsTrigger>
+            <TabsTrigger value="documents">Documentos da Feira</TabsTrigger>
             <TabsTrigger value="costs">Taxas e Custos</TabsTrigger>
             <TabsTrigger value="credentials">Credenciais</TabsTrigger>
             <TabsTrigger value="products">Produtos</TabsTrigger>
@@ -97,7 +100,7 @@ function FairDetail() {
         <TabsContent value="overview"><OverviewTab fair={fair} onUpdate={update} /></TabsContent>
         <TabsContent value="readiness"><ReadinessTab fair={fair} /></TabsContent>
         <TabsContent value="checklist"><ChecklistTab fair={fair} /></TabsContent>
-        <TabsContent value="documents"><DocumentsTab fair={fair} /></TabsContent>
+        <TabsContent value="documents"><FairDocumentsTab fair={fair} /></TabsContent>
         <TabsContent value="costs"><CostsTab fair={fair} /></TabsContent>
         <TabsContent value="credentials"><CredentialsTab fair={fair} /></TabsContent>
         <TabsContent value="products"><ProductsTab fair={fair} /></TabsContent>
@@ -105,6 +108,7 @@ function FairDetail() {
         <TabsContent value="suppliers"><SuppliersTab fair={fair} /></TabsContent>
         <TabsContent value="manual"><ManualTab fair={fair} /></TabsContent>
         <TabsContent value="report"><ReportTab fair={fair} /></TabsContent>
+
       </Tabs>
     </div>
   );
@@ -351,30 +355,8 @@ function ConfirmDelete({ onDelete, label = "Excluir item?" }: { onDelete: () => 
   );
 }
 
-// ============ DOCUMENTOS ============
-function DocumentsTab({ fair }: { fair: Fair }) {
-  const upd = (id: string, patch: Partial<DocumentItem>) => actions.updateChild(fair.id, "documents", l => l.map(i => i.id === id ? { ...i, ...patch } : i));
-  const add = () => actions.updateChild(fair.id, "documents", l => [...l, { id: uid(), name: "Novo documento", type: "Contrato", status: "Pendente" }]);
-  const del = (id: string) => actions.updateChild(fair.id, "documents", l => l.filter(i => i.id !== id));
-  return (
-    <TableCard title="Contratos e Documentos" onAdd={add} onExport={() => exportCSV(`documentos-${fair.name}.csv`, fair.documents)}>
-      <ResponsiveTable headers={["Nome", "Tipo", "Fornecedor", "Recebido em", "Status", "Link", "Observação", ""]}>
-        {fair.documents.map(d => (
-          <tr key={d.id} className="border-t align-middle">
-            <td className="p-2"><Input value={d.name} onChange={e => upd(d.id, { name: e.target.value })} /></td>
-            <td className="p-2"><Select value={d.type} onValueChange={v => upd(d.id, { type: v as DocumentItem["type"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{DOCUMENT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent></Select></td>
-            <td className="p-2"><Input value={d.supplier ?? ""} onChange={e => upd(d.id, { supplier: e.target.value })} /></td>
-            <td className="p-2"><Input type="date" value={d.receivedAt ?? ""} onChange={e => upd(d.id, { receivedAt: e.target.value })} /></td>
-            <td className="p-2"><Select value={d.status} onValueChange={v => upd(d.id, { status: v as DocumentItem["status"] })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{DOCUMENT_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></td>
-            <td className="p-2"><Input placeholder="https://..." value={d.link ?? ""} onChange={e => upd(d.id, { link: e.target.value })} /></td>
-            <td className="p-2"><Input value={d.notes ?? ""} onChange={e => upd(d.id, { notes: e.target.value })} /></td>
-            <td className="p-2"><ConfirmDelete onDelete={() => del(d.id)} /></td>
-          </tr>
-        ))}
-      </ResponsiveTable>
-    </TableCard>
-  );
-}
+
+
 
 // ============ CUSTOS ============
 function CostsTab({ fair }: { fair: Fair }) {
