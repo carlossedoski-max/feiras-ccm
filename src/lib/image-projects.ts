@@ -99,7 +99,7 @@ export interface ProjectHistoryEntry {
   at: string;
   action: string;
   status: string;
-  mode: "OpenAI API" | "Lovable AI" | "Template" | "Manual";
+  mode: "Gemini API" | "Lovable AI" | "Template" | "Manual";
   model?: string;
   error?: string;
   detail?: string;

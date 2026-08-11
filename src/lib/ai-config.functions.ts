@@ -1,21 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
 
 export interface AiStatus {
-  openaiConfigured: boolean;
-  openaiModel: string;
+  geminiConfigured: boolean;
+  geminiModel: string;
   lovableConfigured: boolean;
 }
 
 export const getAiStatus = createServerFn({ method: "GET" }).handler(async (): Promise<AiStatus> => {
-  const { openaiKey, openaiModel, lovableKey } = await import("./ai-provider.server");
+  const { geminiKey, geminiModel, lovableKey } = await import("./ai-provider.server");
   return {
-    openaiConfigured: !!openaiKey(),
-    openaiModel: openaiModel(),
+    geminiConfigured: !!geminiKey(),
+    geminiModel: geminiModel(),
     lovableConfigured: !!lovableKey(),
   };
 });
 
-export const testOpenAiConnection = createServerFn({ method: "POST" }).handler(async () => {
+export const testGeminiConnection = createServerFn({ method: "POST" }).handler(async () => {
   const { callTextAi } = await import("./ai-provider.server");
   const started = Date.now();
   try {
@@ -24,22 +24,22 @@ export const testOpenAiConnection = createServerFn({ method: "POST" }).handler(a
         { role: "system", content: 'Responda apenas com o JSON {"ok":true}.' },
         { role: "user", content: "teste de conexão" },
       ],
-      { mode: "openai", jsonMode: true },
+      { mode: "gemini", jsonMode: true },
     );
     return {
       ok: true as const,
       provider: res.provider,
       model: res.model,
       ms: Date.now() - started,
-      message: "Conexão com a OpenAI API funcionando.",
+      message: "Conexão com a Gemini API funcionando.",
     };
   } catch (e) {
     return {
       ok: false as const,
-      provider: "OpenAI API" as const,
+      provider: "Gemini API" as const,
       model: "",
       ms: Date.now() - started,
-      message: e instanceof Error ? e.message : "Falha ao conectar na OpenAI API.",
+      message: e instanceof Error ? e.message : "Falha ao conectar na Gemini API.",
     };
   }
 });

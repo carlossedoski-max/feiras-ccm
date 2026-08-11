@@ -57,7 +57,7 @@ export interface SuggestedTask {
 
 export interface ManualAnalysisDeadline { description: string; date?: string; importance?: string; consequence?: string }
 export interface ManualAnalysisFee { name: string; description?: string; estimatedValue?: string }
-export type ManualMode = "OpenAI API" | "Lovable AI" | "Manual assistido" | "Template";
+export type ManualMode = "Gemini API" | "Lovable AI" | "Manual assistido" | "Template";
 export interface ManualRun {
   id: string;
   at: string;
