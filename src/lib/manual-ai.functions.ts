@@ -5,7 +5,7 @@ const InputSchema = z.object({
   filename: z.string().min(1),
   mime: z.string().min(1),
   dataBase64: z.string().min(1),
-  mode: z.enum(["openai", "lovable", "auto"]).default("auto"),
+  mode: z.enum(["gemini", "lovable", "auto"]).default("auto"),
 });
 
 const SYSTEM_PROMPT = `Você é um assistente especialista em análise de MANUAIS DO EXPOSITOR de feiras e eventos B2B no Brasil.

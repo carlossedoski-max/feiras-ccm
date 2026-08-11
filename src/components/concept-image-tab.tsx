@@ -137,14 +137,14 @@ export function ConceptImageTab({
       setAiItems(res.aiItems);
       pushHistory({
         action: "Prompt gerado com IA",
-        status: res.provider === "OpenAI API" ? "Análise com OpenAI concluída" : "Prompt gerado com IA",
-        mode: res.provider === "OpenAI API" ? "OpenAI API" : "Lovable AI",
+        status: res.provider === "Gemini API" ? "Análise com Gemini concluída" : "Prompt gerado com IA",
+        mode: res.provider === "Gemini API" ? "Gemini API" : "Lovable AI",
         model: res.model,
       });
       toast.success("Prompt gerado com IA.");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Falha ao gerar o prompt.";
-      pushHistory({ action: "Prompt com IA", status: "Erro na API", mode: "OpenAI API", error: msg });
+      pushHistory({ action: "Prompt com IA", status: "Erro na API", mode: "Gemini API", error: msg });
       toast.error(`${msg} Gerando prompt por template…`);
       promptByTemplate(variation);
     } finally {
@@ -192,13 +192,13 @@ export function ConceptImageTab({
       await saveProject.mutateAsync({
         briefing, budget_tier: budgetTier, target_budget: targetBudget,
         fair_type: fairType, main_brand: mainBrand, required_items: required,
-        history: [historyEntry({ action: "Imagem conceitual gerada", status: "Imagem gerada", mode: res.provider === "OpenAI API" ? "OpenAI API" : "Lovable AI" }), ...history].slice(0, 60),
+        history: [historyEntry({ action: "Imagem conceitual gerada", status: "Imagem gerada", mode: res.provider === "Gemini API" ? "Gemini API" : "Lovable AI" }), ...history].slice(0, 60),
       });
       qc.invalidateQueries({ queryKey: ["project_renders", project.id] });
       toast.success(`Versão ${nextVersion} gerada.`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Falha ao gerar a imagem.";
-      pushHistory({ action: "Geração de imagem", status: "Créditos insuficientes / erro na API", mode: "OpenAI API", error: msg });
+      pushHistory({ action: "Geração de imagem", status: "Créditos insuficientes / erro na API", mode: "Gemini API", error: msg });
       toast.error(`${msg} Os créditos de imagem estão indisponíveis, mas o prompt continua salvo para uso posterior.`);
     } finally {
       setBusy(null);

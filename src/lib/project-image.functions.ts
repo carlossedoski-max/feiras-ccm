@@ -17,7 +17,7 @@ const PromptInput = z.object({
   extraNotes: z.string().default(""),
   variationHint: z.string().default(""),
   brandFidelity: z.string().default("Alta — cores e logos exatamente como a marca"),
-  mode: z.enum(["openai", "lovable", "auto"]).default("auto"),
+  mode: z.enum(["gemini", "lovable", "auto"]).default("auto"),
 });
 
 const ImageInput = z.object({
@@ -91,18 +91,22 @@ ${data.variationHint ? `- Ajuste desta variação: ${data.variationHint}` : ""}`
     };
   });
 
-async function openAiImage(prompt: string): Promise<Uint8Array | null> {
-  const { openaiKey } = await import("./ai-provider.server");
-  const key = openaiKey();
+async function geminiImage(prompt: string): Promise<Uint8Array | null> {
+  const { geminiKey } = await import("./ai-provider.server");
+  const key = geminiKey();
   if (!key) return null;
-  const res = await fetch("https://api.openai.com/v1/images/generations", {
+  const model = process.env['GEMINI_IMAGE_MODEL']?.trim() || "gemini-2.5-flash-image-preview";
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model: "gpt-image-1", prompt: prompt.slice(0, 3800), size: "1536x1024" }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ role: "user", parts: [{ text: `${prompt.slice(0, 3800)}\n\nConceptual trade show booth rendering, professional, clean, realistic lighting, no text artifacts, no watermark.` }] }],
+      generationConfig: { responseModalities: ["IMAGE", "TEXT"] },
+    }),
   });
-  if (!res.ok) throw new Error(`OpenAI (imagem): ${res.status} ${(await res.text()).slice(0, 200)}`);
-  const json = (await res.json()) as { data?: Array<{ b64_json?: string }> };
-  const b64 = json.data?.[0]?.b64_json;
+  if (!res.ok) throw new Error(`Gemini (imagem): ${res.status} ${(await res.text()).slice(0, 200)}`);
+  const json = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data?: string } }> } }> };
+  const b64 = json.candidates?.[0]?.content?.parts?.find((part) => part.inlineData?.data)?.inlineData?.data;
   return b64 ? toBytes(b64) : null;
 }
 
@@ -149,8 +153,8 @@ export const generateConceptImage = createServerFn({ method: "POST" })
     let provider = "";
 
     try {
-      bytes = await openAiImage(data.prompt);
-      if (bytes) provider = "OpenAI API";
+      bytes = await geminiImage(data.prompt);
+      if (bytes) provider = "Gemini API";
     } catch (e) {
       errors.push(e instanceof Error ? e.message : String(e));
     }
