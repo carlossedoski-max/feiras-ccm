@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ProgressBar } from "@/components/ccm-ui";
 
 const BUCKET = "fair-files";
 const ANSWERS: ReadinessAnswer[] = ["Sim", "Não", "Não se aplica"];
@@ -52,8 +53,8 @@ export function ReadinessTab({ fair }: { fair: Fair }) {
   };
 
   return (
-    <div className="space-y-4">
-      <Card>
+    <div className="ccm-fade space-y-4">
+      <Card className="ccm-lift">
         <CardContent className="space-y-4 p-4 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -74,9 +75,7 @@ export function ReadinessTab({ fair }: { fair: Fair }) {
             <Stat label="Pendências para envio" value={String(summary.pendingShipping.length)} tone={summary.pendingShipping.length ? "text-warning-foreground" : "text-success"} />
           </div>
 
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full bg-primary transition-all" style={{ width: `${summary.percent}%` }} />
-          </div>
+          <ProgressBar value={summary.percent} tone={summary.percent === 100 ? "success" : "primary"} />
 
           {summary.pendingRequired.length > 0 ? (
             <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
@@ -138,7 +137,7 @@ export function ReadinessTab({ fair }: { fair: Fair }) {
             return a === "Sim" || a === "Não se aplica";
           }).length;
           return (
-            <AccordionItem key={group.id} value={group.id} className="rounded-lg border bg-card px-4">
+            <AccordionItem key={group.id} value={group.id} className="ccm-rise rounded-lg border bg-card px-4">
               <AccordionTrigger className="hover:no-underline">
                 <span className="flex flex-1 items-center justify-between pr-3 text-left">
                   <span className="font-semibold">{group.title}</span>
@@ -219,7 +218,7 @@ function ReadinessRow({
   };
 
   return (
-    <div className="rounded-md border p-3">
+    <div className="ccm-row rounded-md border p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm font-medium">
           {label}
@@ -232,7 +231,7 @@ function ReadinessRow({
               type="button"
               onClick={() => onChange({ answer: entry.answer === a ? undefined : a })}
               className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                entry.answer === a ? answerTone[a] : "border-border text-muted-foreground hover:bg-accent"
+                entry.answer === a ? `${answerTone[a]} ccm-pop` : "border-border text-muted-foreground hover:bg-accent"
               }`}
             >
               {a}

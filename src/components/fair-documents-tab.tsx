@@ -15,6 +15,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ccm-ui";
 
 import {
   actions, uid, fmtDate, daysUntil,
@@ -58,7 +59,7 @@ export function FairDocumentsTab({ fair }: { fair: Fair }) {
   return (
     <div className="space-y-4">
       {alerts.length > 0 && (
-        <Card className="border-warning/40 bg-warning/5">
+        <Card className="ccm-rise border-warning/40 bg-warning/5">
           <CardContent className="space-y-1.5 p-4">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <AlertTriangle className="h-4 w-4 text-warning" /> Alertas de documentação
@@ -77,7 +78,7 @@ export function FairDocumentsTab({ fair }: { fair: Fair }) {
         </Card>
       )}
 
-      <Card>
+      <Card className="ccm-lift">
         <CardContent className="flex flex-wrap items-end gap-3 p-4">
           <div className="min-w-[200px] flex-1 space-y-1.5">
             <Label className="text-xs">Buscar</Label>
@@ -114,8 +115,8 @@ export function FairDocumentsTab({ fair }: { fair: Fair }) {
       </Card>
 
       {filtered.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">
-          Nenhum documento cadastrado com estes filtros.
+        <Card className="ccm-lift"><CardContent className="p-0">
+          <EmptyState icon={<Paperclip className="h-6 w-6" />} title="Nenhum documento encontrado" description="Adicione contratos, manuais, comprovantes e arquivos da feira nesta central." action={<NewDocumentDialog fair={fair} />} />
         </CardContent></Card>
       ) : (
         <div className="space-y-3">
@@ -176,7 +177,7 @@ function DocumentCard({
   }
 
   return (
-    <Card className={cn(doc.archived && "opacity-60")}>
+    <Card className={cn("ccm-rise ccm-lift", doc.archived && "opacity-60")}>
       <CardContent className="space-y-3 p-4">
         <div className="grid gap-3 md:grid-cols-4">
           <div className="space-y-1.5 md:col-span-2">

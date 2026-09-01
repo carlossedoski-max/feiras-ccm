@@ -25,6 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ManualTab } from "@/components/manual-tab";
 import { FairDocumentsTab } from "@/components/fair-documents-tab";
+import { BrushDivider, FadeIn } from "@/components/ccm-ui";
 
 import { ReadinessTab } from "@/components/readiness-tab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -50,8 +51,8 @@ function FairDetail() {
   const update = (patch: Partial<Fair>) => actions.updateFair(fair.id, patch);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="ccm-fade space-y-6">
+      <div className="ccm-hinomaru flex flex-wrap items-start justify-between gap-4 rounded-lg border border-border/60 p-4 sm:p-5">
         <div className="min-w-0">
           <Link to="/fairs" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" /> Voltar</Link>
           <h1 className="mt-1 text-2xl font-bold sm:text-3xl truncate">{fair.name}</h1>
@@ -82,7 +83,7 @@ function FairDetail() {
 
       <Tabs defaultValue="overview" className="space-y-4">
         <div className="overflow-x-auto -mx-4 px-4">
-          <TabsList className="inline-flex h-auto flex-nowrap">
+          <TabsList className="inline-flex h-auto flex-nowrap border border-border/70 bg-card/80 p-1 shadow-sm">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="readiness">Feira pronta?</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
@@ -97,18 +98,19 @@ function FairDetail() {
           </TabsList>
         </div>
 
-        <TabsContent value="overview"><OverviewTab fair={fair} onUpdate={update} /></TabsContent>
-        <TabsContent value="readiness"><ReadinessTab fair={fair} /></TabsContent>
-        <TabsContent value="checklist"><ChecklistTab fair={fair} /></TabsContent>
-        <TabsContent value="documents"><FairDocumentsTab fair={fair} /></TabsContent>
-        <TabsContent value="costs"><CostsTab fair={fair} /></TabsContent>
-        <TabsContent value="credentials"><CredentialsTab fair={fair} /></TabsContent>
-        <TabsContent value="products"><ProductsTab fair={fair} /></TabsContent>
-        <TabsContent value="materials"><MaterialsTab fair={fair} /></TabsContent>
-        <TabsContent value="suppliers"><SuppliersTab fair={fair} /></TabsContent>
-        <TabsContent value="manual"><ManualTab fair={fair} /></TabsContent>
-        <TabsContent value="report"><ReportTab fair={fair} /></TabsContent>
+        <TabsContent value="overview" className="ccm-fade"><OverviewTab fair={fair} onUpdate={update} /></TabsContent>
+        <TabsContent value="readiness" className="ccm-fade"><ReadinessTab fair={fair} /></TabsContent>
+        <TabsContent value="checklist" className="ccm-fade"><ChecklistTab fair={fair} /></TabsContent>
+        <TabsContent value="documents" className="ccm-fade"><FairDocumentsTab fair={fair} /></TabsContent>
+        <TabsContent value="costs" className="ccm-fade"><CostsTab fair={fair} /></TabsContent>
+        <TabsContent value="credentials" className="ccm-fade"><CredentialsTab fair={fair} /></TabsContent>
+        <TabsContent value="products" className="ccm-fade"><ProductsTab fair={fair} /></TabsContent>
+        <TabsContent value="materials" className="ccm-fade"><MaterialsTab fair={fair} /></TabsContent>
+        <TabsContent value="suppliers" className="ccm-fade"><SuppliersTab fair={fair} /></TabsContent>
+        <TabsContent value="manual" className="ccm-fade"><ManualTab fair={fair} /></TabsContent>
+        <TabsContent value="report" className="ccm-fade"><ReportTab fair={fair} /></TabsContent>
 
+        <BrushDivider className="!my-0" />
       </Tabs>
     </div>
   );
@@ -140,7 +142,7 @@ function OverviewTab({ fair, onUpdate }: { fair: Fair; onUpdate: (p: Partial<Fai
         <StatCard label="Checklist concluído" value={`${pct}%`} tone="success" />
       </div>
 
-      <Card>
+      <Card className="ccm-lift">
         <CardContent className="p-6">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4">Linha do tempo</h3>
           <div className="flex items-center gap-1 overflow-x-auto">
@@ -160,7 +162,7 @@ function OverviewTab({ fair, onUpdate }: { fair: Fair; onUpdate: (p: Partial<Fai
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="ccm-lift">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Informações da feira</h3>
@@ -198,7 +200,7 @@ function OverviewTab({ fair, onUpdate }: { fair: Fair; onUpdate: (p: Partial<Fai
 function StatCard({ label, value, tone }: { label: string; value: string; tone?: "success" | "warning" }) {
   const toneCls = tone === "success" ? "text-success" : tone === "warning" ? "text-primary" : "text-foreground";
   return (
-    <Card><CardContent className="p-4">
+    <Card className="ccm-lift"><CardContent className="p-4">
       <div className="text-xs font-medium text-muted-foreground">{label}</div>
       <div className={`mt-1.5 text-2xl font-bold ${toneCls}`}>{value}</div>
     </CardContent></Card>
@@ -236,7 +238,7 @@ function ChecklistTab({ fair }: { fair: Fair }) {
 
   return (
     <div className="space-y-4">
-      <Card><CardContent className="p-4 grid gap-3 sm:grid-cols-3">
+      <Card className="ccm-lift"><CardContent className="p-4 grid gap-3 sm:grid-cols-3">
         <div>
           <Label className="text-xs text-muted-foreground">Status</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -614,7 +616,7 @@ function ReportTab({ fair }: { fair: Fair }) {
     a.click();
   };
   return (
-    <Card><CardContent className="p-6 space-y-5">
+    <Card className="ccm-lift"><CardContent className="p-6 space-y-5">
       <h2 className="text-lg font-semibold">Relatório Pós-Feira</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <div><Label>Total de leads captados</Label><Input type="number" value={r.totalLeads ?? ""} onChange={e => setR({ ...r, totalLeads: Number(e.target.value) })} /></div>
@@ -646,7 +648,7 @@ function ReportTab({ fair }: { fair: Fair }) {
 // ============ shared ============
 function TableCard({ title, onAdd, onExport, children }: { title: string; onAdd: () => void; onExport: () => void; children: React.ReactNode }) {
   return (
-    <Card><CardContent className="p-0">
+    <Card className="ccm-lift"><CardContent className="p-0">
       <div className="flex items-center justify-between px-5 py-3 border-b bg-muted/30">
         <h3 className="font-semibold">{title}</h3>
         <div className="flex gap-2">
