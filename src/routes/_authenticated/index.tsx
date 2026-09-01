@@ -259,22 +259,23 @@ function Dashboard() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {cards.map(c => {
+        {cards.map((c, i) => {
           const Comp = c.onClick ? "button" : "div";
           return (
             <Comp
               key={c.label}
               onClick={c.onClick}
-              className={`text-left ${c.onClick ? "cursor-pointer transition hover:shadow-md hover:-translate-y-0.5" : ""}`}
+              className="ccm-rise text-left"
+              style={{ animationDelay: `${i * 45}ms` }}
             >
-              <Card className="overflow-hidden border-border/70 h-full">
+              <Card className={`overflow-hidden border-border/70 h-full ccm-lift ${c.onClick ? "cursor-pointer" : ""}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-muted-foreground truncate">{c.label}</p>
-                      <p className="mt-1.5 text-2xl font-bold tabular-nums">{c.value}</p>
+                      <p className="mt-1.5 text-2xl font-bold tabular-nums"><CountUp value={c.value} /></p>
                     </div>
-                    <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-md ${toneCls[c.tone]}`}>
+                    <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-md transition-transform duration-200 group-hover:scale-105 ${toneCls[c.tone]}`}>
                       <c.icon className="h-5 w-5" />
                     </div>
                   </div>
@@ -284,6 +285,7 @@ function Dashboard() {
           );
         })}
       </div>
+
 
       {/* Filters + list */}
       <section id="pendencias-list">
