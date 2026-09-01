@@ -45,5 +45,5 @@ const MAP: Record<string, string> = {
 export function StatusBadge({ status }: { status?: string }) {
   if (!status) return null;
   const cls = MAP[status] ?? "bg-muted text-foreground";
-  return <Badge variant="outline" className={cn("border font-medium whitespace-nowrap", cls)}>{status}</Badge>;
+  return <Badge variant="outline" className={cn("border font-medium whitespace-nowrap transition-colors duration-200", cls)}>{status}</Badge>;
 }

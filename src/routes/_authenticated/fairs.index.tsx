@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { StatusBadge } from "@/components/status-badge";
 import { toast } from "sonner";
+import { EmptyState, ProgressBar } from "@/components/ccm-ui";
 
 export const Route = createFileRoute("/_authenticated/fairs/")({
   head: () => ({ meta: [{ title: "Feiras e Eventos — CCM Feira Control" }] }),
@@ -44,7 +45,7 @@ function FairsList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="ccm-fade space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">Feiras e Eventos</h1>
@@ -78,17 +79,17 @@ function FairsList() {
       </Card>
 
       {filtered.length === 0 ? (
-        <Card><CardContent className="p-10 text-center text-sm text-muted-foreground">
-          {fairs.length === 0 ? "Nenhuma feira cadastrada ainda. Clique em Nova feira para começar." : "Nenhuma feira encontrada com esses filtros."}
+        <Card className="ccm-lift"><CardContent className="p-0">
+          <EmptyState title={fairs.length === 0 ? "Nenhuma feira cadastrada" : "Nenhuma feira encontrada"} description={fairs.length === 0 ? "Cadastre a primeira feira para organizar prazos, documentos e equipe." : "Ajuste a busca ou os filtros para encontrar uma feira."} action={<Button onClick={() => setOpenNew(true)}><Plus className="h-4 w-4" /> Nova feira</Button>} />
         </CardContent></Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map(f => {
+          {filtered.map((f, i) => {
             const pend = f.checklist.filter(c => c.status !== "Concluído" && c.status !== "Não se aplica").length;
             const done = f.checklist.filter(c => c.status === "Concluído").length;
             const pct = f.checklist.length ? Math.round((done / f.checklist.length) * 100) : 0;
             return (
-              <Card key={f.id} className="group relative overflow-hidden transition-shadow hover:shadow-md">
+              <Card key={f.id} className="ccm-rise ccm-lift group relative overflow-hidden" style={{ animationDelay: `${i * 55}ms` }}>
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -106,9 +107,7 @@ function FairsList() {
                     <div><div className="text-muted-foreground">Checklist</div><div className="mt-0.5 font-semibold">{pct}%</div></div>
                     <div><div className="text-muted-foreground">Pendências</div><div className="mt-0.5 font-semibold text-primary">{pend}</div></div>
                   </div>
-                  <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                    <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-                  </div>
+                  <ProgressBar value={pct} className="mt-4 h-1.5" />
                   <div className="mt-4 flex items-center justify-between">
                     <Link to="/fairs/$fairId" params={{ fairId: f.id }} className="text-sm font-medium text-primary hover:underline">Abrir ficha →</Link>
                     <AlertDialog>
