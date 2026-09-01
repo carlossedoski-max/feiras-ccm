@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { CountUp, EmptyState, BrushDivider } from "@/components/ccm-ui";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Dashboard — CCM Feira Control" }] }),
@@ -240,7 +241,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="ccm-fade space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">Dashboard</h1>
@@ -329,9 +330,13 @@ function Dashboard() {
         <Card>
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <div className="p-8 text-center text-sm text-muted-foreground">
-                {pendencies.length === 0 ? "Nenhuma pendência registrada. Cadastre uma feira para começar." : "Nenhuma pendência para esse filtro."}
-              </div>
+              <EmptyState
+                icon={<ClipboardList className="h-6 w-6" />}
+                title={pendencies.length === 0 ? "Nenhuma pendência registrada" : "Nenhuma pendência para esse filtro"}
+                description={pendencies.length === 0
+                  ? "Cadastre uma feira para que os prazos e pendências apareçam aqui."
+                  : "Ajuste os filtros acima para ver outras pendências."}
+              />
             ) : (
               <div className="divide-y">
                 {filtered.slice(0, 60).map(p => <PendencyRow key={p.key} p={p} />)}
@@ -341,6 +346,7 @@ function Dashboard() {
         </Card>
       </section>
 
+      <BrushDivider className="!my-0" />
       {/* Legenda de cores */}
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
         <LegendDot cls="bg-destructive" label="Vencido" />
@@ -431,7 +437,7 @@ function RadarBlock({
 }) {
   const t = radarTone[tone] ?? radarTone['primary']!;
   return (
-    <Card className="overflow-hidden">
+    <Card className="ccm-rise overflow-hidden ccm-lift">
       <div className={`flex items-center justify-between border-b px-3 py-2 ${t.head}`}>
         <span className="text-sm font-semibold">{title}</span>
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${t.badge}`}>{items.length}</span>
@@ -443,7 +449,7 @@ function RadarBlock({
           <ul className="divide-y">
             {items.slice(0, 6).map(i => (
               <li key={i.key}>
-                <Link to="/fairs/$fairId" params={{ fairId: i.fairId }} className="block px-3 py-2 hover:bg-muted/60">
+                <Link to="/fairs/$fairId" params={{ fairId: i.fairId }} className="block px-3 py-2 ccm-row">
                   <p className="text-xs font-medium leading-snug line-clamp-2">{i.description}</p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground truncate">
                     {i.fairName}{i.deadline ? ` · ${fmtDate(i.deadline)}` : ""}
@@ -480,7 +486,7 @@ function PendencyRow({ p }: { p: Pendency }) {
   const d = daysUntil(p.deadline);
   const relLabel = d == null ? "Sem prazo" : d < 0 ? `Venceu há ${-d}d` : d === 0 ? "Vence hoje" : `Faltam ${d}d`;
   return (
-    <div className={`grid gap-2 p-3 sm:grid-cols-[1.5fr_2fr_120px_150px_130px_100px_auto] items-center hover:bg-muted/30 ${t.row}`}>
+    <div className={`grid gap-2 p-3 sm:grid-cols-[1.5fr_2fr_120px_150px_130px_100px_auto] items-center ccm-row ${t.row}`}>
       <div className="min-w-0">
         <Link to="/fairs/$fairId" params={{ fairId: p.fairId }} className="block truncate text-sm font-semibold text-primary hover:underline">
           {p.fairName || "Sem nome"}
