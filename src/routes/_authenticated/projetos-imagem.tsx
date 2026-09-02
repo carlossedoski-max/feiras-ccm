@@ -122,7 +122,7 @@ function ProjectsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="ccm-fade space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Projetos por Imagem</h1>
@@ -221,7 +221,7 @@ function NewProject({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="ccm-fade space-y-6">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel}><ArrowLeft className="h-4 w-4" /> Voltar</Button>
         <h1 className="text-xl font-bold">Novo projeto por imagem</h1>
@@ -372,7 +372,7 @@ function ProjectDetail({ project, onBack }: { project: ImageProject; onBack: () 
   const a = project.analysis;
 
   return (
-    <div className="space-y-6">
+    <div className="ccm-fade space-y-6">
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="h-4 w-4" /> Voltar</Button>
         <h1 className="text-xl font-bold">{project.name}</h1>
@@ -607,7 +607,7 @@ function ImagesTab({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="ccm-fade space-y-4">
       <div className="flex flex-wrap gap-2">
         <input ref={inputRef} type="file" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
           className="hidden" onChange={(e) => { addMore(e.target.files); if (inputRef.current) inputRef.current.value = ""; }} />

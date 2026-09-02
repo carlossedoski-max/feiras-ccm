@@ -174,7 +174,7 @@ function AuxilioPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="ccm-fade space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">Fornecedores</h1>
@@ -203,7 +203,7 @@ function AuxilioPage() {
         ))}
       </div>
 
-      <Card>
+      <Card className="ccm-lift">
         <CardContent className="space-y-4 pt-6">
           <div>
             <h2 className="text-lg font-semibold">Cadastro Rápido de Fornecedores</h2>
