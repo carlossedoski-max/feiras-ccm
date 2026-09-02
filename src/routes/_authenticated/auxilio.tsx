@@ -14,6 +14,7 @@ import {
 } from "@/lib/suppliers";
 import { exportCSV, fmtDate } from "@/lib/store";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, LoadingState } from "@/components/ccm-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -263,7 +264,7 @@ function AuxilioPage() {
                   {filtered.map(s => {
                     const last = lastContactBySupplier.get(s.id);
                     return (
-                      <tr key={s.id} className={cn("border-b align-top", s.approved === "Sim" && "bg-success/5")}>
+                      <tr key={s.id} className={cn("ccm-row border-b align-top", s.approved === "Sim" && "bg-success/5")}>
                         <td className="px-2 py-2">
                           <div className="flex items-start gap-1.5">
                             <button

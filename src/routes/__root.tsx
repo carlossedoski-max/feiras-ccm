@@ -123,7 +123,7 @@ function AuthButton() {
 function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 border-b bg-sidebar text-sidebar-foreground shadow-sm">
+      <header className="sticky top-0 z-30 border-b bg-sidebar text-sidebar-foreground shadow-sm ccm-washi">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
             <div className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground font-black text-sm">CCM</div>
@@ -151,8 +151,9 @@ function AppShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="ml-auto"><AuthButton /></div>
         </div>
+      <div aria-hidden className="h-[3px] w-full bg-gradient-to-r from-primary via-primary/40 to-transparent" />
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8"><div className="ccm-fade">{children}</div></main>
     </div>
   );
 }
