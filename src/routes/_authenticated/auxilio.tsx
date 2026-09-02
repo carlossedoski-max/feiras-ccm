@@ -14,6 +14,7 @@ import {
 } from "@/lib/suppliers";
 import { exportCSV, fmtDate } from "@/lib/store";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState, LoadingState } from "@/components/ccm-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -173,7 +174,7 @@ function AuxilioPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="ccm-fade space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">Fornecedores</h1>
@@ -202,7 +203,7 @@ function AuxilioPage() {
         ))}
       </div>
 
-      <Card>
+      <Card className="ccm-lift">
         <CardContent className="space-y-4 pt-6">
           <div>
             <h2 className="text-lg font-semibold">Cadastro Rápido de Fornecedores</h2>
@@ -230,18 +231,21 @@ function AuxilioPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-12 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin" />
-            </div>
+            <LoadingState message="Carregando fornecedores..." rows={5} />
           ) : filtered.length === 0 ? (
-            <div className="rounded-lg border border-dashed py-12 text-center text-sm text-muted-foreground">
-              {suppliers.length === 0 ? "Nenhum fornecedor cadastrado ainda." : "Nenhum fornecedor encontrado com esses filtros."}
+            <div className="rounded-lg border border-dashed">
+              <EmptyState
+                title={suppliers.length === 0 ? "Nenhum fornecedor cadastrado" : "Nenhum fornecedor encontrado"}
+                description={suppliers.length === 0
+                  ? "Cadastre fornecedores ou vincule contatos já utilizados em feiras anteriores."
+                  : "Ajuste a busca ou limpe os filtros para ver todos os fornecedores."}
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px] text-sm">
                 <thead>
-                  <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-2 py-2">Fornecedor</th>
                     <th className="px-2 py-2">Contato</th>
                     <th className="px-2 py-2">WhatsApp</th>
@@ -260,7 +264,7 @@ function AuxilioPage() {
                   {filtered.map(s => {
                     const last = lastContactBySupplier.get(s.id);
                     return (
-                      <tr key={s.id} className={cn("border-b align-top", s.approved === "Sim" && "bg-success/5")}>
+                      <tr key={s.id} className={cn("ccm-row border-b align-top", s.approved === "Sim" && "bg-success/5")}>
                         <td className="px-2 py-2">
                           <div className="flex items-start gap-1.5">
                             <button

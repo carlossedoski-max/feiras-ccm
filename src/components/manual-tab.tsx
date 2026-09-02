@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { EmptyState } from "@/components/ccm-ui";
 import { analyzeExpoManual } from "@/lib/manual-ai.functions";
 import {
   actions, uid, fmtDate, PRIORITIES, RESPONSIBLE_SUGGESTIONS,
@@ -141,7 +142,7 @@ export function ManualTab({ fair }: { fair: Fair }) {
   const pendingReview = analysis?.suggestedTasks.filter(t => !analysis.addedTaskIds.includes(t.id)) ?? [];
 
   return (
-    <div className="space-y-4">
+    <div className="ccm-fade space-y-4">
       {/* Aviso fixo */}
       <div className="flex gap-2 rounded-md border border-warning/40 bg-warning/10 p-3 text-sm text-warning-foreground">
         <Info className="h-4 w-4 mt-0.5 shrink-0" />
@@ -149,7 +150,7 @@ export function ManualTab({ fair }: { fair: Fair }) {
       </div>
 
       {/* Upload */}
-      <Card>
+      <Card className="ccm-lift">
         <CardContent className="p-6 space-y-4">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />

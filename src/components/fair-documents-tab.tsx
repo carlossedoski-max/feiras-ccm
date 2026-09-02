@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import {
   Plus, Trash2, Paperclip, ExternalLink, Download, AlertTriangle, Archive, Search,
+  FileText, FileSpreadsheet, ImageIcon, File as FileIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -129,6 +130,16 @@ export function FairDocumentsTab({ fair }: { fair: Fair }) {
   );
 }
 
+function FileTypeIcon({ name, type }: { name?: string; type?: string }) {
+  const ext = (name ?? "").split(".").pop()?.toLowerCase() ?? "";
+  const cls = "h-3.5 w-3.5";
+  if (ext === "pdf" || type?.includes("pdf")) return <FileText className={cn(cls, "text-destructive")} />;
+  if (["doc", "docx"].includes(ext)) return <FileText className={cn(cls, "text-info")} />;
+  if (["xls", "xlsx", "csv"].includes(ext)) return <FileSpreadsheet className={cn(cls, "text-success")} />;
+  if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) return <ImageIcon className={cn(cls, "text-primary")} />;
+  return <FileIcon className={cn(cls, "text-muted-foreground")} />;
+}
+
 function dueTone(d: DocumentItem) {
   if (d.status === "Pago" || d.status === "Arquivado" || d.status === "Aprovado") return "text-success";
   const dd = daysUntil(d.dueDate);
@@ -236,8 +247,8 @@ function DocumentCard({
           </span>
           {doc.filePath ? (
             <>
-              <Badge variant="outline" className="max-w-[240px] truncate text-[11px]">
-                <Paperclip className="mr-1 h-3 w-3" /> {doc.fileName ?? "arquivo"}
+              <Badge variant="outline" className="ccm-pop max-w-[240px] gap-1 truncate text-[11px]">
+                <FileTypeIcon name={doc.fileName} type={doc.fileType} /> {doc.fileName ?? "arquivo"}
               </Badge>
               <Button variant="outline" size="sm" onClick={() => void open(false)}><ExternalLink className="h-4 w-4" /> Abrir</Button>
               <Button variant="outline" size="sm" onClick={() => void open(true)}><Download className="h-4 w-4" /> Baixar</Button>
