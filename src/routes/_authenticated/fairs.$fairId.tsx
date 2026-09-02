@@ -25,7 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { ManualTab } from "@/components/manual-tab";
 import { FairDocumentsTab } from "@/components/fair-documents-tab";
-import { BrushDivider, FadeIn } from "@/components/ccm-ui";
+import { BrushDivider, ProgressBar } from "@/components/ccm-ui";
 
 import { ReadinessTab } from "@/components/readiness-tab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -282,22 +282,32 @@ function ChecklistTab({ fair }: { fair: Fair }) {
           && (priorityFilter === "all" || i.priority === priorityFilter)
           && (responsibleFilter === "all" || i.responsible === responsibleFilter)
         );
+        const phaseAll = fair.checklist.filter(i => i.phase === phase);
+        const phaseTotal = phaseAll.length;
+        const phaseDone = phaseAll.filter(i => i.status === "Concluído" || i.status === "Não se aplica").length;
+        const phasePct = phaseTotal ? Math.round((phaseDone / phaseTotal) * 100) : 0;
         return (
-          <Card key={phase}>
+          <Card key={phase} className="ccm-rise ccm-lift overflow-hidden">
             <CardContent className="p-0">
-              <div className="flex items-center justify-between px-5 py-3 border-b bg-muted/30">
-                <h3 className="font-semibold">{phase}</h3>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-muted/30 px-5 py-3">
+                <div className="min-w-[180px] flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-semibold">{phase}</h3>
+                    <span className="text-xs font-medium tabular-nums text-muted-foreground">{phaseDone}/{phaseTotal} · {phasePct}%</span>
+                  </div>
+                  <ProgressBar value={phasePct} tone={phasePct === 100 ? "success" : "primary"} className="mt-2 h-1.5" />
+                </div>
                 <Button variant="ghost" size="sm" onClick={() => addItem(phase)}><Plus className="h-4 w-4" /> Adicionar item</Button>
               </div>
               <div className="divide-y">
-                {items.length === 0 && <div className="p-5 text-sm text-muted-foreground text-center">Sem itens.</div>}
+                {items.length === 0 && <div className="p-5 text-center text-sm text-muted-foreground">Nenhum item nesta etapa. Use “Adicionar item” para criar o próximo passo.</div>}
                 {items.map(item => {
                   const done = item.status === "Concluído" || item.status === "Não se aplica";
                   const tone = deadlineTone(item.deadline, done);
                   const t = toneClasses[tone];
                   return (
-                    <div key={item.id} className={`grid gap-2 p-4 sm:grid-cols-[minmax(0,2fr)_130px_150px_140px_120px_auto_auto] items-center ${t.row}`}>
-                      <Input value={item.title} onChange={e => updateItem(item.id, { title: e.target.value })} className="font-medium" />
+                    <div key={item.id} className={`grid gap-2 p-4 sm:grid-cols-[minmax(0,2fr)_130px_150px_140px_120px_auto_auto] items-center ccm-row transition-opacity ${done ? "opacity-70" : ""} ${t.row}`}>
+                      <Input value={item.title} onChange={e => updateItem(item.id, { title: e.target.value })} className={`font-medium transition-all ${done ? "text-muted-foreground line-through decoration-success/60" : ""}`} />
                       <Select value={item.status} onValueChange={v => updateItem(item.id, { status: v as ChecklistItem["status"] })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>{CHECKLIST_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -322,7 +332,7 @@ function ChecklistTab({ fair }: { fair: Fair }) {
                         variant="outline"
                         size="sm"
                         disabled={done}
-                        onClick={() => updateItem(item.id, { status: "Concluído" })}
+                        onClick={() => { updateItem(item.id, { status: "Concluído" }); toast.success("Tarefa concluída."); }}
                         className="h-8 text-success border-success/40 hover:bg-success/10 disabled:opacity-40"
                         title={done ? "Já concluído" : "Marcar como concluído"}
                       >

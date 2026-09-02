@@ -230,18 +230,21 @@ function AuxilioPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-12 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin" />
-            </div>
+            <LoadingState message="Carregando fornecedores..." rows={5} />
           ) : filtered.length === 0 ? (
-            <div className="rounded-lg border border-dashed py-12 text-center text-sm text-muted-foreground">
-              {suppliers.length === 0 ? "Nenhum fornecedor cadastrado ainda." : "Nenhum fornecedor encontrado com esses filtros."}
+            <div className="rounded-lg border border-dashed">
+              <EmptyState
+                title={suppliers.length === 0 ? "Nenhum fornecedor cadastrado" : "Nenhum fornecedor encontrado"}
+                description={suppliers.length === 0
+                  ? "Cadastre fornecedores ou vincule contatos já utilizados em feiras anteriores."
+                  : "Ajuste a busca ou limpe os filtros para ver todos os fornecedores."}
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px] text-sm">
                 <thead>
-                  <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-2 py-2">Fornecedor</th>
                     <th className="px-2 py-2">Contato</th>
                     <th className="px-2 py-2">WhatsApp</th>

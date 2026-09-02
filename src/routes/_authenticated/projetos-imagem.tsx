@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConceptImageTab } from "@/components/concept-image-tab";
+import { EmptyState, LoadingState } from "@/components/ccm-ui";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -150,17 +151,15 @@ function ProjectsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Carregando projetos…</div>
+        <Card><CardContent className="p-0"><LoadingState message="Organizando informações dos projetos..." rows={3} /></CardContent></Card>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="flex flex-col items-center gap-3 py-14 text-center">
-          <Images className="h-10 w-10 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Nenhum projeto ainda. Envie fotos de um estande para começar.</p>
-          <Button onClick={() => setCreating(true)}><Upload className="h-4 w-4" /> Novo projeto</Button>
+        <Card className="ccm-lift"><CardContent className="p-0">
+          <EmptyState icon={<Images className="h-6 w-6" />} title="Nenhum projeto por imagem ainda" description="Envie fotos de estandes anteriores ou referências para gerar o briefing técnico." action={<Button onClick={() => setCreating(true)}><Upload className="h-4 w-4" /> Novo projeto</Button>} />
         </CardContent></Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <Card key={p.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setOpenId(p.id)}>
+            <Card key={p.id} className="ccm-rise ccm-lift cursor-pointer" onClick={() => setOpenId(p.id)}>
               <CardContent className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold leading-tight">{p.name}</h3>
