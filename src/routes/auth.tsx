@@ -70,12 +70,13 @@ function AuthPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col justify-center py-8">
-      <div className="mb-6 text-center">
+    <div className="ccm-fade mx-auto flex max-w-md flex-col justify-center py-8">
+      <div className="ccm-hinomaru mb-6 rounded-lg border border-border/60 px-4 py-6 text-center">
         <h1 className="text-2xl font-bold">Área de Fornecedores</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Entre com sua conta para acessar o cadastro de fornecedores da equipe.
         </p>
+        <div aria-hidden className="ccm-brush mx-auto mt-4 w-24" />
       </div>
 
       {sent ? (
