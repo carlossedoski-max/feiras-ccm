@@ -14,6 +14,290 @@ export type Database = {
   }
   public: {
     Tables: {
+      equipment_catalog: {
+        Row: {
+          brand: string
+          category: string
+          ccm_code: string
+          created_at: string
+          created_by: string | null
+          dimension_status: string
+          gross_weight: number | null
+          height_mm: number | null
+          id: string
+          last_checked_at: string | null
+          length_mm: number | null
+          model: string
+          name: string
+          net_weight: number | null
+          normalized_code: string
+          notes: string
+          official_url: string | null
+          photo_url: string | null
+          situation: string
+          source: string
+          specifications: Json
+          updated_at: string
+          width_mm: number | null
+        }
+        Insert: {
+          brand?: string
+          category?: string
+          ccm_code: string
+          created_at?: string
+          created_by?: string | null
+          dimension_status?: string
+          gross_weight?: number | null
+          height_mm?: number | null
+          id?: string
+          last_checked_at?: string | null
+          length_mm?: number | null
+          model?: string
+          name?: string
+          net_weight?: number | null
+          normalized_code: string
+          notes?: string
+          official_url?: string | null
+          photo_url?: string | null
+          situation?: string
+          source?: string
+          specifications?: Json
+          updated_at?: string
+          width_mm?: number | null
+        }
+        Update: {
+          brand?: string
+          category?: string
+          ccm_code?: string
+          created_at?: string
+          created_by?: string | null
+          dimension_status?: string
+          gross_weight?: number | null
+          height_mm?: number | null
+          id?: string
+          last_checked_at?: string | null
+          length_mm?: number | null
+          model?: string
+          name?: string
+          net_weight?: number | null
+          normalized_code?: string
+          notes?: string
+          official_url?: string | null
+          photo_url?: string | null
+          situation?: string
+          source?: string
+          specifications?: Json
+          updated_at?: string
+          width_mm?: number | null
+        }
+        Relationships: []
+      }
+      equipment_import_batches: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          details: Json
+          duplicate_count: number
+          filename: string
+          id: string
+          invalid_count: number
+          plan_id: string
+          status: string
+          updated_at: string
+          valid_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          details?: Json
+          duplicate_count?: number
+          filename: string
+          id?: string
+          invalid_count?: number
+          plan_id: string
+          status?: string
+          updated_at?: string
+          valid_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          details?: Json
+          duplicate_count?: number
+          filename?: string
+          id?: string
+          invalid_count?: number
+          plan_id?: string
+          status?: string
+          updated_at?: string
+          valid_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_import_batches_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "fair_equipment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fair_equipment_items: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_mode: string
+          equipment_id: string
+          id: string
+          included: boolean
+          is_launch: boolean
+          location: string
+          manual_area: number | null
+          notes: string
+          plan_id: string
+          position_x: number | null
+          position_y: number | null
+          priority: string
+          quantity: number
+          rotation: number
+          situation: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_mode?: string
+          equipment_id: string
+          id?: string
+          included?: boolean
+          is_launch?: boolean
+          location?: string
+          manual_area?: number | null
+          notes?: string
+          plan_id: string
+          position_x?: number | null
+          position_y?: number | null
+          priority?: string
+          quantity?: number
+          rotation?: number
+          situation?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_mode?: string
+          equipment_id?: string
+          id?: string
+          included?: boolean
+          is_launch?: boolean
+          location?: string
+          manual_area?: number | null
+          notes?: string
+          plan_id?: string
+          position_x?: number | null
+          position_y?: number | null
+          priority?: string
+          quantity?: number
+          rotation?: number
+          situation?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fair_equipment_items_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fair_equipment_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "fair_equipment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fair_equipment_plans: {
+        Row: {
+          circulation_percent: number
+          created_at: string
+          created_by: string | null
+          edition_year: number
+          external_reserved: number
+          fair_id: string
+          id: string
+          internal_reserved: number
+          notes: string
+          reference_plan_id: string | null
+          reference_snapshot: Json | null
+          stand_area: number
+          stand_depth: number
+          stand_width: number
+          terrain_depth: number
+          terrain_width: number
+          total_area: number
+          updated_at: string
+        }
+        Insert: {
+          circulation_percent?: number
+          created_at?: string
+          created_by?: string | null
+          edition_year: number
+          external_reserved?: number
+          fair_id: string
+          id?: string
+          internal_reserved?: number
+          notes?: string
+          reference_plan_id?: string | null
+          reference_snapshot?: Json | null
+          stand_area?: number
+          stand_depth?: number
+          stand_width?: number
+          terrain_depth?: number
+          terrain_width?: number
+          total_area?: number
+          updated_at?: string
+        }
+        Update: {
+          circulation_percent?: number
+          created_at?: string
+          created_by?: string | null
+          edition_year?: number
+          external_reserved?: number
+          fair_id?: string
+          id?: string
+          internal_reserved?: number
+          notes?: string
+          reference_plan_id?: string | null
+          reference_snapshot?: Json | null
+          stand_area?: number
+          stand_depth?: number
+          stand_width?: number
+          terrain_depth?: number
+          terrain_width?: number
+          total_area?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fair_equipment_plans_fair_id_fkey"
+            columns: ["fair_id"]
+            isOneToOne: false
+            referencedRelation: "fairs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fair_equipment_plans_reference_plan_id_fkey"
+            columns: ["reference_plan_id"]
+            isOneToOne: false
+            referencedRelation: "fair_equipment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fairs: {
         Row: {
           area_size: string | null
@@ -457,7 +741,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      copy_equipment_edition: {
+        Args: { p_snapshot: Json; p_source: string; p_target: string }
+        Returns: number
+      }
+      import_equipment_list: {
+        Args: {
+          p_duplicates: number
+          p_filename: string
+          p_invalid: number
+          p_merge?: boolean
+          p_plan_id: string
+          p_rows: Json
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
