@@ -13,10 +13,12 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedProjetosImagemRouteImport } from './routes/_authenticated/projetos-imagem'
+import { Route as AuthenticatedEquipamentosRouteImport } from './routes/_authenticated/equipamentos'
 import { Route as AuthenticatedConfiguracoesIaRouteImport } from './routes/_authenticated/configuracoes-ia'
 import { Route as AuthenticatedAuxilioRouteImport } from './routes/_authenticated/auxilio'
 import { Route as AuthenticatedFairsIndexRouteImport } from './routes/_authenticated/fairs.index'
 import { Route as AuthenticatedFairsFairIdRouteImport } from './routes/_authenticated/fairs.$fairId'
+import { Route as AuthenticatedEquipamentosPlanIdRouteImport } from './routes/_authenticated/equipamentos_.$planId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -36,6 +38,12 @@ const AuthenticatedProjetosImagemRoute =
   AuthenticatedProjetosImagemRouteImport.update({
     id: '/projetos-imagem',
     path: '/projetos-imagem',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEquipamentosRoute =
+  AuthenticatedEquipamentosRouteImport.update({
+    id: '/equipamentos',
+    path: '/equipamentos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedConfiguracoesIaRoute =
@@ -60,13 +68,21 @@ const AuthenticatedFairsFairIdRoute =
     path: '/fairs/$fairId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEquipamentosPlanIdRoute =
+  AuthenticatedEquipamentosPlanIdRouteImport.update({
+    id: '/equipamentos_/$planId',
+    path: '/equipamentos/$planId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/auxilio': typeof AuthenticatedAuxilioRoute
   '/configuracoes-ia': typeof AuthenticatedConfiguracoesIaRoute
+  '/equipamentos': typeof AuthenticatedEquipamentosRoute
   '/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
+  '/equipamentos/$planId': typeof AuthenticatedEquipamentosPlanIdRoute
   '/fairs/$fairId': typeof AuthenticatedFairsFairIdRoute
   '/fairs/': typeof AuthenticatedFairsIndexRoute
 }
@@ -74,8 +90,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/auxilio': typeof AuthenticatedAuxilioRoute
   '/configuracoes-ia': typeof AuthenticatedConfiguracoesIaRoute
+  '/equipamentos': typeof AuthenticatedEquipamentosRoute
   '/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/': typeof AuthenticatedIndexRoute
+  '/equipamentos/$planId': typeof AuthenticatedEquipamentosPlanIdRoute
   '/fairs/$fairId': typeof AuthenticatedFairsFairIdRoute
   '/fairs': typeof AuthenticatedFairsIndexRoute
 }
@@ -85,8 +103,10 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/auxilio': typeof AuthenticatedAuxilioRoute
   '/_authenticated/configuracoes-ia': typeof AuthenticatedConfiguracoesIaRoute
+  '/_authenticated/equipamentos': typeof AuthenticatedEquipamentosRoute
   '/_authenticated/projetos-imagem': typeof AuthenticatedProjetosImagemRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/equipamentos_/$planId': typeof AuthenticatedEquipamentosPlanIdRoute
   '/_authenticated/fairs/$fairId': typeof AuthenticatedFairsFairIdRoute
   '/_authenticated/fairs/': typeof AuthenticatedFairsIndexRoute
 }
@@ -97,7 +117,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auxilio'
     | '/configuracoes-ia'
+    | '/equipamentos'
     | '/projetos-imagem'
+    | '/equipamentos/$planId'
     | '/fairs/$fairId'
     | '/fairs/'
   fileRoutesByTo: FileRoutesByTo
@@ -105,8 +127,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auxilio'
     | '/configuracoes-ia'
+    | '/equipamentos'
     | '/projetos-imagem'
     | '/'
+    | '/equipamentos/$planId'
     | '/fairs/$fairId'
     | '/fairs'
   id:
@@ -115,8 +139,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/auxilio'
     | '/_authenticated/configuracoes-ia'
+    | '/_authenticated/equipamentos'
     | '/_authenticated/projetos-imagem'
     | '/_authenticated/'
+    | '/_authenticated/equipamentos_/$planId'
     | '/_authenticated/fairs/$fairId'
     | '/_authenticated/fairs/'
   fileRoutesById: FileRoutesById
@@ -156,6 +182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjetosImagemRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/equipamentos': {
+      id: '/_authenticated/equipamentos'
+      path: '/equipamentos'
+      fullPath: '/equipamentos'
+      preLoaderRoute: typeof AuthenticatedEquipamentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/configuracoes-ia': {
       id: '/_authenticated/configuracoes-ia'
       path: '/configuracoes-ia'
@@ -184,14 +217,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFairsFairIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/equipamentos_/$planId': {
+      id: '/_authenticated/equipamentos_/$planId'
+      path: '/equipamentos/$planId'
+      fullPath: '/equipamentos/$planId'
+      preLoaderRoute: typeof AuthenticatedEquipamentosPlanIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuxilioRoute: typeof AuthenticatedAuxilioRoute
   AuthenticatedConfiguracoesIaRoute: typeof AuthenticatedConfiguracoesIaRoute
+  AuthenticatedEquipamentosRoute: typeof AuthenticatedEquipamentosRoute
   AuthenticatedProjetosImagemRoute: typeof AuthenticatedProjetosImagemRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedEquipamentosPlanIdRoute: typeof AuthenticatedEquipamentosPlanIdRoute
   AuthenticatedFairsFairIdRoute: typeof AuthenticatedFairsFairIdRoute
   AuthenticatedFairsIndexRoute: typeof AuthenticatedFairsIndexRoute
 }
@@ -199,8 +241,10 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuxilioRoute: AuthenticatedAuxilioRoute,
   AuthenticatedConfiguracoesIaRoute: AuthenticatedConfiguracoesIaRoute,
+  AuthenticatedEquipamentosRoute: AuthenticatedEquipamentosRoute,
   AuthenticatedProjetosImagemRoute: AuthenticatedProjetosImagemRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedEquipamentosPlanIdRoute: AuthenticatedEquipamentosPlanIdRoute,
   AuthenticatedFairsFairIdRoute: AuthenticatedFairsFairIdRoute,
   AuthenticatedFairsIndexRoute: AuthenticatedFairsIndexRoute,
 }

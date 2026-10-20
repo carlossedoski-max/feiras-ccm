@@ -13,9 +13,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { StatusBadge } from "@/components/status-badge";
 import { toast } from "sonner";
 import { EmptyState, ProgressBar } from "@/components/ccm-ui";
+import { equipmentHead } from "@/lib/equipment/meta";
 
 export const Route = createFileRoute("/_authenticated/fairs/")({
-  head: () => ({ meta: [{ title: "Feiras e Eventos — CCM Feira Control" }] }),
+  head: () => equipmentHead("Feiras e Eventos", "Feiras e eventos da CCM do Brasil, com status, prazos e organização por edição."),
   component: FairsList,
 });
 

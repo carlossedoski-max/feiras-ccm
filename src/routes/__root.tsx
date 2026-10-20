@@ -9,7 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut, Images, Settings } from "lucide-react";
+import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut, Images, Settings, Package } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -64,8 +64,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Dashboard — CCM Feira Control" },
       { name: "twitter:description", content: "Ferramenta interna da CCM do Brasil para organizar feiras: contratos, credenciais, taxas, produtos, materiais e fornecedores." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/39a4a50e-e674-489a-85e6-75b55a11dc1b/id-preview-950bd8a2--79795893-9a7e-48a5-923f-b52c7d1b77bb.lovable.app-1783606497254.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/39a4a50e-e674-489a-85e6-75b55a11dc1b/id-preview-950bd8a2--79795893-9a7e-48a5-923f-b52c7d1b77bb.lovable.app-1783606497254.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -124,7 +122,7 @@ function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b bg-sidebar text-sidebar-foreground shadow-sm ccm-washi">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
             <div className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground font-black text-sm">CCM</div>
             <div className="hidden sm:block leading-tight">
@@ -132,7 +130,7 @@ function AppShell({ children }: { children: ReactNode }) {
               <div className="text-[11px] text-sidebar-foreground/60">CCM do Brasil</div>
             </div>
           </Link>
-          <nav className="ml-4 flex items-center gap-1">
+          <nav className="order-3 flex w-full items-center gap-1 overflow-x-auto lg:order-none lg:ml-4 lg:w-auto lg:flex-1">
             <Link to="/" activeOptions={{ exact: true }} activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <LayoutDashboard className="h-4 w-4" /><span className="hidden sm:inline">Dashboard</span>
             </Link>
@@ -147,6 +145,9 @@ function AppShell({ children }: { children: ReactNode }) {
             </Link>
             <Link to="/auxilio" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
               <LifeBuoy className="h-4 w-4" /><span className="hidden sm:inline">Fornecedores</span>
+            </Link>
+            <Link to="/equipamentos" search={{ fairId: undefined }} title="Equipamentos" activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground" }} className="flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+              <Package className="h-4 w-4" /><span className="hidden sm:inline">Equipamentos</span>
             </Link>
           </nav>
           <div className="ml-auto"><AuthButton /></div>
