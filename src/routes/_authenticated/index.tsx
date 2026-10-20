@@ -12,9 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { CountUp, EmptyState, BrushDivider } from "@/components/ccm-ui";
+import { equipmentHead } from "@/lib/equipment/meta";
 
 export const Route = createFileRoute("/_authenticated/")({
-  head: () => ({ meta: [{ title: "Dashboard — CCM Feira Control" }] }),
+  head: () => equipmentHead("Dashboard", "Radar diário, próximos prazos e visão geral da gestão de feiras da CCM do Brasil."),
   component: Dashboard,
 });
 

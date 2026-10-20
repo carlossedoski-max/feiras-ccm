@@ -31,10 +31,11 @@ import { ReadinessTab } from "@/components/readiness-tab";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchSuppliers, type Supplier as AuxSupplier } from "@/lib/suppliers";
+import { equipmentHead } from "@/lib/equipment/meta";
 
 export const Route = createFileRoute("/_authenticated/fairs/$fairId")({
   loader: ({ params }) => ({ fairId: params.fairId }),
-  head: () => ({ meta: [{ title: "Ficha da feira — CCM Feira Control" }] }),
+  head: () => equipmentHead("Ficha da feira", "Documentos, checklist, produtos e organização da participação da CCM do Brasil em feiras."),
   component: FairDetail,
   notFoundComponent: () => (
     <div className="text-center py-16"><p className="text-muted-foreground">Feira não encontrada.</p>
@@ -62,7 +63,8 @@ function FairDetail() {
             <StatusBadge status={fair.status} />
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button asChild><Link to="/equipamentos" search={{ fairId: fair.id }}>Planejar equipamentos</Link></Button>
           <Select value={fair.status} onValueChange={v => update({ status: v as FairStatus })}>
             <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
             <SelectContent>{FAIR_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
