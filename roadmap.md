@@ -4,3 +4,9 @@
 - [x] Integrar consulta oficial CCM e revisão manual.
 - [x] Integrar menu e botão da feira; verificar fluxo autenticado, testes e telas.
 - [x] Preparar posições da planta 2D; entregar cálculo primeiro, conforme alternativa autorizada.
+
+## Exclusão e recuperação de equipamentos
+- [ ] Implementar exclusão lógica e recuperação atômica, mantendo o catálogo intacto.
+- [ ] Adicionar seleção em lote, confirmações e menu de exclusão do planejamento.
+- [ ] Adicionar Lixeira com restauração e exclusão definitiva restrita a ela.
+- [ ] Testar regras e fluxos autenticados em computador e celular; não publicar.
