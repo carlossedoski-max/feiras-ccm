@@ -1,4 +1,3 @@
-/// <reference types="bun" />
 import { describe, test, expect } from 'bun:test';
 import { calculatePlan, itemArea, normalizeCode, parseImportRows, mergeImportRows, compareEditions, removalSuggestions, type Equipment, type Item, type Plan } from './model';
 import { parseOfficialProduct } from './ccm-adapter.server';
