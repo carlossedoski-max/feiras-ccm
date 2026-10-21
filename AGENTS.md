@@ -16,3 +16,5 @@
 - Fetch official specifications through an authenticated server function and a replaceable server-only adapter, so product retrieval never runs in the user's browser.
 - Keep the equipment detail route unnested from its content index; use the trailing-underscore filename so each screen renders independently.
 - Positions and rotations are stored for a future 2D layout; do not expose an unimplemented floorplan control.
+- Equipment access follows parent-fair RLS while retaining the existing shared authenticated-team workflow; edition snapshots are assembled in the database rather than trusted from the client.
+- Exclude Bun test files from the app TypeScript program to keep test-runtime globals out of browser and server typings; run the tests independently with Bun.

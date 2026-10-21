@@ -234,3 +234,8 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+
+.ccm-occupancy { appearance: none; border: 0; background: var(--color-border); }
+.ccm-occupancy::-webkit-progress-bar { background: var(--color-border); }
+.ccm-occupancy::-webkit-progress-value { background: currentColor; }
+.ccm-occupancy::-moz-progress-bar { background: currentColor; }

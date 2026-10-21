@@ -9,24 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedProjetosImagemRouteImport } from './routes/_authenticated/projetos-imagem'
-import { Route as AuthenticatedEquipamentosRouteImport } from './routes/_authenticated/equipamentos'
-import { Route as AuthenticatedConfiguracoesIaRouteImport } from './routes/_authenticated/configuracoes-ia'
 import { Route as AuthenticatedAuxilioRouteImport } from './routes/_authenticated/auxilio'
+import { Route as AuthenticatedConfiguracoesIaRouteImport } from './routes/_authenticated/configuracoes-ia'
+import { Route as AuthenticatedEquipamentosRouteImport } from './routes/_authenticated/equipamentos'
+import { Route as AuthenticatedProjetosImagemRouteImport } from './routes/_authenticated/projetos-imagem'
+import { Route as AuthenticatedEquipamentosPlanIdRouteImport } from './routes/_authenticated/equipamentos_.$planId'
 import { Route as AuthenticatedFairsIndexRouteImport } from './routes/_authenticated/fairs.index'
 import { Route as AuthenticatedFairsFairIdRouteImport } from './routes/_authenticated/fairs.$fairId'
-import { Route as AuthenticatedEquipamentosPlanIdRouteImport } from './routes/_authenticated/equipamentos_.$planId'
 
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
@@ -34,10 +34,15 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedProjetosImagemRoute =
-  AuthenticatedProjetosImagemRouteImport.update({
-    id: '/projetos-imagem',
-    path: '/projetos-imagem',
+const AuthenticatedAuxilioRoute = AuthenticatedAuxilioRouteImport.update({
+  id: '/auxilio',
+  path: '/auxilio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedConfiguracoesIaRoute =
+  AuthenticatedConfiguracoesIaRouteImport.update({
+    id: '/configuracoes-ia',
+    path: '/configuracoes-ia',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedEquipamentosRoute =
@@ -46,17 +51,18 @@ const AuthenticatedEquipamentosRoute =
     path: '/equipamentos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedConfiguracoesIaRoute =
-  AuthenticatedConfiguracoesIaRouteImport.update({
-    id: '/configuracoes-ia',
-    path: '/configuracoes-ia',
+const AuthenticatedProjetosImagemRoute =
+  AuthenticatedProjetosImagemRouteImport.update({
+    id: '/projetos-imagem',
+    path: '/projetos-imagem',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAuxilioRoute = AuthenticatedAuxilioRouteImport.update({
-  id: '/auxilio',
-  path: '/auxilio',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedEquipamentosPlanIdRoute =
+  AuthenticatedEquipamentosPlanIdRouteImport.update({
+    id: '/equipamentos_/$planId',
+    path: '/equipamentos/$planId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFairsIndexRoute = AuthenticatedFairsIndexRouteImport.update({
   id: '/fairs/',
   path: '/fairs/',
@@ -66,12 +72,6 @@ const AuthenticatedFairsFairIdRoute =
   AuthenticatedFairsFairIdRouteImport.update({
     id: '/fairs/$fairId',
     path: '/fairs/$fairId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedEquipamentosPlanIdRoute =
-  AuthenticatedEquipamentosPlanIdRouteImport.update({
-    id: '/equipamentos_/$planId',
-    path: '/equipamentos/$planId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -154,18 +154,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
@@ -175,18 +175,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/projetos-imagem': {
-      id: '/_authenticated/projetos-imagem'
-      path: '/projetos-imagem'
-      fullPath: '/projetos-imagem'
-      preLoaderRoute: typeof AuthenticatedProjetosImagemRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/equipamentos': {
-      id: '/_authenticated/equipamentos'
-      path: '/equipamentos'
-      fullPath: '/equipamentos'
-      preLoaderRoute: typeof AuthenticatedEquipamentosRouteImport
+    '/_authenticated/auxilio': {
+      id: '/_authenticated/auxilio'
+      path: '/auxilio'
+      fullPath: '/auxilio'
+      preLoaderRoute: typeof AuthenticatedAuxilioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/configuracoes-ia': {
@@ -196,11 +189,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesIaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/auxilio': {
-      id: '/_authenticated/auxilio'
-      path: '/auxilio'
-      fullPath: '/auxilio'
-      preLoaderRoute: typeof AuthenticatedAuxilioRouteImport
+    '/_authenticated/equipamentos': {
+      id: '/_authenticated/equipamentos'
+      path: '/equipamentos'
+      fullPath: '/equipamentos'
+      preLoaderRoute: typeof AuthenticatedEquipamentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/projetos-imagem': {
+      id: '/_authenticated/projetos-imagem'
+      path: '/projetos-imagem'
+      fullPath: '/projetos-imagem'
+      preLoaderRoute: typeof AuthenticatedProjetosImagemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/equipamentos_/$planId': {
+      id: '/_authenticated/equipamentos_/$planId'
+      path: '/equipamentos/$planId'
+      fullPath: '/equipamentos/$planId'
+      preLoaderRoute: typeof AuthenticatedEquipamentosPlanIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fairs/': {
@@ -215,13 +222,6 @@ declare module '@tanstack/react-router' {
       path: '/fairs/$fairId'
       fullPath: '/fairs/$fairId'
       preLoaderRoute: typeof AuthenticatedFairsFairIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/equipamentos_/$planId': {
-      id: '/_authenticated/equipamentos_/$planId'
-      path: '/equipamentos/$planId'
-      fullPath: '/equipamentos/$planId'
-      preLoaderRoute: typeof AuthenticatedEquipamentosPlanIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
