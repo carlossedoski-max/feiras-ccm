@@ -24,7 +24,7 @@ export async function saveEquipment(input:EquipmentInput,id?:string) {
 }
 export async function savePlan(input:PlanInput,id?:string) {
  const query=id?supabase.from('fair_equipment_plans').update(input).eq('id',id):supabase.from('fair_equipment_plans').insert(input);
- const {data,error}=await query.select().single();if(error)throw new Error(error.code==='23505'?'Esta feira já tem planejamento para o ano informado.':error.message);return data;
+ const {data,error}=await query.select().single();if(error)throw new Error(error.code==='23505'?'Esta feira já tem planejamento para o ano informado. Confira também a Lixeira para restaurá-lo.':error.message);return data;
 }
 export async function saveItem(input:ItemInput,id?:string) {
  const query=id?supabase.from('fair_equipment_items').update(input).eq('id',id):supabase.from('fair_equipment_items').insert(input);
@@ -34,7 +34,7 @@ export async function deleteItems(planId:string,ids:string[]) {const {error}=awa
 export async function managePlan(planId:string,action:'trash'|'restore'|'purge',confirmation='') {const {error}=await supabase.rpc('manage_equipment_plan',{p_plan_id:planId,p_action:action,p_confirmation:confirmation});if(error)throw error;}
 export const equipmentTrashQuery=queryOptions({queryKey:['equipment','trash'],queryFn:async()=>{
  const plans=await allRows((f,t)=>supabase.from('fair_equipment_plans').select('*').not('deleted_at','is',null).order('deleted_at',{ascending:false}).order('id').range(f,t));
- const items=await allRows((f,t)=>supabase.from('fair_equipment_items').select('*').eq('deleted_with_plan',true).order('id').range(f,t));
+ const items=await allRows((f,t)=>supabase.from('fair_equipment_items').select('*').eq('deleted_with_plan',true).not('deleted_at','is',null).order('id').range(f,t));
  return {plans,items};
 }});
 export async function importItems(planId:string,rows:unknown[],filename:string,invalid:number,duplicates:number,merge:boolean) {
