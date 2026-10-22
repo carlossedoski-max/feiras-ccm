@@ -26,7 +26,7 @@ export function calculatePlan(plan: Pick<Plan,'total_area'|'stand_area'|'interna
  const byId = new Map(catalog.map(e => [e.id,e]));
  let internal = 0, external = 0, pending = 0, quantity = 0, launches = 0;
  for (const i of items) {
-  if (!i.included) continue;
+  if (!i.included || i.deleted_at) continue;
   quantity += i.quantity;
   if (i.is_launch) launches += i.quantity;
   const area = itemArea(i,byId.get(i.equipment_id));
@@ -70,10 +70,11 @@ export function mergeImportRows(rows: ImportRow[]) {
  return [...result.values()];
 }
 export function compareEditions(current: Item[], previous: Item[], catalog: Equipment[]) {
- const group = (list: Item[]) => { const map = new Map<string,number>(); for (const i of list.filter(i => i.included)) map.set(i.equipment_id,(map.get(i.equipment_id) ?? 0)+i.quantity); return map; };
+ const group = (list: Item[]) => { const map = new Map<string,number>(); for (const i of list.filter(i => i.included && !i.deleted_at)) map.set(i.equipment_id,(map.get(i.equipment_id) ?? 0)+i.quantity); return map; };
  const a=group(current), b=group(previous);
  return catalog.filter(e => a.has(e.id) || b.has(e.id)).map(e => ({ equipment:e, before:b.get(e.id) ?? 0, after:a.get(e.id) ?? 0, change:!b.has(e.id)?'Adicionado':!a.has(e.id)?'Retirado':a.get(e.id)!==b.get(e.id)?'Quantidade alterada':'Mantido' }));
 }
 export function removalSuggestions(items: Item[], catalog: Equipment[]) {
- return items.filter(i => i.included && ['Opcional','Complementar'].includes(i.priority)).map(i => ({ item:i, equipment:catalog.find(e => e.id===i.equipment_id), area:itemArea(i,catalog.find(e => e.id===i.equipment_id)) })).sort((a,b) => (a.item.priority==='Opcional'?0:1)-(b.item.priority==='Opcional'?0:1) || (b.area ?? 0)-(a.area ?? 0));
+ return items.filter(i => i.included && !i.deleted_at && ['Opcional','Complementar'].includes(i.priority)).map(i => ({ item:i, equipment:catalog.find(e => e.id===i.equipment_id), area:itemArea(i,catalog.find(e => e.id===i.equipment_id)) })).sort((a,b) => (a.item.priority==='Opcional'?0:1)-(b.item.priority==='Opcional'?0:1) || (b.area ?? 0)-(a.area ?? 0));
 }
+export const canConfirmDeletion=(value:string)=>value==='EXCLUIR';
