@@ -148,6 +148,7 @@ export type Database = {
           created_by: string | null
           deleted_at: string | null
           deleted_by: string | null
+          deleted_by_name: string | null
           deleted_with_plan: boolean
           display_mode: string
           equipment_id: string
@@ -171,6 +172,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
+          deleted_by_name?: string | null
           deleted_with_plan?: boolean
           display_mode?: string
           equipment_id: string
@@ -194,6 +196,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
+          deleted_by_name?: string | null
           deleted_with_plan?: boolean
           display_mode?: string
           equipment_id?: string
@@ -236,6 +239,7 @@ export type Database = {
           created_by: string | null
           deleted_at: string | null
           deleted_by: string | null
+          deleted_by_name: string | null
           edition_year: number
           external_reserved: number
           fair_id: string
@@ -258,6 +262,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
+          deleted_by_name?: string | null
           edition_year: number
           external_reserved?: number
           fair_id: string
@@ -280,6 +285,7 @@ export type Database = {
           created_by?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
+          deleted_by_name?: string | null
           edition_year?: number
           external_reserved?: number
           fair_id?: string
