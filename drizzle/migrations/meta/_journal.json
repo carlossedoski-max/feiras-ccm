@@ -22,6 +22,13 @@
       "when": 1792668430216,
       "tag": "0002_equipment_soft_deletion_and_recovery",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792668564957,
+      "tag": "0003_equipment_purge_confirmation_guard",
+      "breakpoints": true
     }
   ]
 }
