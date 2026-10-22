@@ -146,6 +146,10 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          deleted_by_name: string | null
+          deleted_with_plan: boolean
           display_mode: string
           equipment_id: string
           id: string
@@ -166,6 +170,10 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_by_name?: string | null
+          deleted_with_plan?: boolean
           display_mode?: string
           equipment_id: string
           id?: string
@@ -186,6 +194,10 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_by_name?: string | null
+          deleted_with_plan?: boolean
           display_mode?: string
           equipment_id?: string
           id?: string
@@ -225,6 +237,9 @@ export type Database = {
           circulation_percent: number
           created_at: string
           created_by: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          deleted_by_name: string | null
           edition_year: number
           external_reserved: number
           fair_id: string
@@ -245,6 +260,9 @@ export type Database = {
           circulation_percent?: number
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_by_name?: string | null
           edition_year: number
           external_reserved?: number
           fair_id: string
@@ -265,6 +283,9 @@ export type Database = {
           circulation_percent?: number
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_by_name?: string | null
           edition_year?: number
           external_reserved?: number
           fair_id?: string
@@ -754,6 +775,14 @@ export type Database = {
           p_plan_id: string
           p_rows: Json
         }
+        Returns: number
+      }
+      manage_equipment_plan: {
+        Args: { p_action: string; p_confirmation?: string; p_plan_id: string }
+        Returns: undefined
+      }
+      trash_equipment_items: {
+        Args: { p_ids: string[]; p_plan_id: string }
         Returns: number
       }
     }

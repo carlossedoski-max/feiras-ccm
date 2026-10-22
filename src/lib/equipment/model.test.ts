@@ -1,10 +1,15 @@
 import { describe, test, expect } from 'bun:test';
-import { calculatePlan, itemArea, normalizeCode, parseImportRows, mergeImportRows, compareEditions, removalSuggestions, type Equipment, type Item, type Plan } from './model';
+import { calculatePlan, itemArea, normalizeCode, parseImportRows, mergeImportRows, compareEditions, removalSuggestions, canConfirmDeletion, type Equipment, type Item, type Plan } from './model';
 import { parseOfficialProduct } from './ccm-adapter.server';
 const equipment={id:'e',ccm_code:'60-00330',name:'Enxada',length_mm:1000,width_mm:2000,height_mm:1000} as Equipment;
 const item={id:'i',equipment_id:'e',included:true,quantity:2,location:'Área externa',display_mode:'No chão',manual_area:null,priority:'Opcional',is_launch:false} as Item;
 const plan={total_area:100,stand_area:50,internal_reserved:0,external_reserved:0,circulation_percent:25} as Plan;
 describe('Regras de equipamentos',()=>{
+ test('exclusão individual recalcula área, saldo, percentual e quantidade',()=>{const s=calculatePlan(plan,[item,{...item,id:'deleted',deleted_at:'2026-10-22T11:00:00Z',quantity:50}],[equipment]);expect(s.equipmentArea).toBe(4);expect(s.balance).toBe(95);expect(s.percent).toBe(5);expect(s.quantity).toBe(2);expect(s.status).toBe('Cabe com folga');});
+ test('exclusão em lote elimina alertas de capacidade e pendências',()=>{const s=calculatePlan(plan,[{...item,deleted_at:'2026-10-22',quantity:100},{...item,id:'pending',equipment_id:'missing',deleted_at:'2026-10-22'}],[equipment]);expect(s.quantity).toBe(0);expect(s.pending).toBe(0);expect(s.occupied).toBe(0);expect(s.balance).toBe(100);expect(s.status).toBe('Cabe com folga');});
+ test('confirmação requer exatamente EXCLUIR',()=>{expect(canConfirmDeletion('EXCLUIR')).toBe(true);expect(canConfirmDeletion('excluir')).toBe(false);expect(canConfirmDeletion(' EXCLUIR')).toBe(false);expect(canConfirmDeletion('')).toBe(false);});
+ test('exclusão não altera o catálogo nem os dados de origem',()=>{const deleted={...item,deleted_at:'2026-10-22'};calculatePlan(plan,[deleted],[equipment]);expect(equipment.ccm_code).toBe('60-00330');expect(equipment.length_mm).toBe(1000);expect(item.quantity).toBe(2);expect(deleted.deleted_at).toBe('2026-10-22');});
+ test('comparação e sugestões não incluem itens excluídos',()=>{const deleted={...item,deleted_at:'2026-10-22'};expect(compareEditions([deleted],[item],[equipment])[0]?.change).toBe('Retirado');expect(removalSuggestions([deleted],[equipment])).toEqual([]);});
  test('preserva o código original e consulta apenas números',()=>{const rows=parseImportRows([['CÓD','Quantidade','PRODUTO','Observação'],[' 60-00330 ',2,' Enxada ','sem estoque']]);expect(rows[0]?.code).toBe('60-00330');expect(normalizeCode('60-00330')).toBe('6000330');expect(normalizeCode('00-001')).toBe('00001');expect(rows[0]?.notes).toBe('sem estoque');});
  test('área em mm e quantidade',()=>{expect(itemArea(item,equipment)).toBe(4);});
  test('circulação padrão de 25%',()=>{const s=calculatePlan(plan,[item],[equipment]);expect(s.circulation).toBe(1);expect(s.occupied).toBe(5);});
