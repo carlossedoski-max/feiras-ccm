@@ -15,7 +15,7 @@
 - Import spreadsheets and copy editions through atomic security-invoker database functions, so partial writes cannot leave inconsistent lists or alter the source edition.
 - Fetch official specifications through an authenticated server function and a replaceable server-only adapter, so product retrieval never runs in the user's browser.
 - Keep the equipment detail route unnested from its content index; use the trailing-underscore filename so each screen renders independently.
-- Positions and rotations are stored for a future 2D layout; do not expose an unimplemented floorplan control.
+- Store the 2D floorplan as versioned JSON on the existing plan with per-item/per-unit placement keys; isolate geometry in equipment/floorplan-model.ts and persist through authenticated invoker RPCs so list quantities and layout stay independent.
 - Equipment access follows parent-fair RLS while retaining the existing shared authenticated-team workflow; edition snapshots are assembled in the database rather than trusted from the client.
 - Exclude Bun test files from the app TypeScript program to keep test-runtime globals out of browser and server typings; run the tests independently with Bun.
 - Equipment deletion/recovery uses authenticated security-invoker RPCs and existing tables; a per-item cascade marker distinguishes plan removals from earlier individual removals so restoration preserves intent. Active reads exclude deleted rows and trash reads use a dedicated cache key.

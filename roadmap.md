@@ -10,3 +10,10 @@
 - [x] Adicionar seleção em lote, confirmações e menu de exclusão do planejamento.
 - [x] Adicionar Lixeira com restauração e exclusão definitiva restrita a ela.
 - [x] Testar regras e fluxos autenticados em computador e celular; não publicar.
+
+## Planta 2D
+- [ ] Persistir configurações e posições por unidade, com cópia opcional entre edições.
+- [ ] Construir planta em escala, seleção, arraste, giro, zoom e movimentação.
+- [ ] Validar geometria, circulação e dimensões; organizar automaticamente.
+- [ ] Adicionar remoção visual, limpeza, exclusão confirmada e exportações.
+- [ ] Testar regras, salvamento, cópia, exportações e uso em computador/celular sem publicar.
