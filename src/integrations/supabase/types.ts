@@ -243,6 +243,8 @@ export type Database = {
           edition_year: number
           external_reserved: number
           fair_id: string
+          floorplan: Json | null
+          floorplan_updated_at: string | null
           id: string
           internal_reserved: number
           notes: string
@@ -266,6 +268,8 @@ export type Database = {
           edition_year: number
           external_reserved?: number
           fair_id: string
+          floorplan?: Json | null
+          floorplan_updated_at?: string | null
           id?: string
           internal_reserved?: number
           notes?: string
@@ -289,6 +293,8 @@ export type Database = {
           edition_year?: number
           external_reserved?: number
           fair_id?: string
+          floorplan?: Json | null
+          floorplan_updated_at?: string | null
           id?: string
           internal_reserved?: number
           notes?: string
@@ -766,6 +772,10 @@ export type Database = {
         Args: { p_snapshot: Json; p_source: string; p_target: string }
         Returns: number
       }
+      copy_equipment_edition_layout: {
+        Args: { p_copy_layout?: boolean; p_source: string; p_target: string }
+        Returns: number
+      }
       import_equipment_list: {
         Args: {
           p_duplicates: number
@@ -779,6 +789,10 @@ export type Database = {
       }
       manage_equipment_plan: {
         Args: { p_action: string; p_confirmation?: string; p_plan_id: string }
+        Returns: undefined
+      }
+      save_equipment_floorplan: {
+        Args: { p_layout: Json; p_plan_id: string }
         Returns: undefined
       }
       trash_equipment_items: {
