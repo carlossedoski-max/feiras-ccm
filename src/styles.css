@@ -239,3 +239,21 @@
 .ccm-occupancy::-webkit-progress-bar { background: var(--color-border); }
 .ccm-occupancy::-webkit-progress-value { background: currentColor; }
 .ccm-occupancy::-moz-progress-bar { background: currentColor; }
+
+.floorplan-scene { height: 520px; cursor: grab; }
+.floor-terrain { fill: var(--card); }
+.floor-stand { fill: var(--muted); stroke: var(--secondary); stroke-width: 1.5; }
+.floor-grid { stroke: var(--border); }
+.floor-boundary { stroke: var(--foreground); stroke-width: 2; }
+.floor-label,.floor-measure,.floor-tick { fill: var(--muted-foreground); font-family: var(--font-sans); }
+.floor-label { font-size: 10px; }.floor-measure { font-size: 14px; }.floor-tick { font-size: 9px; }
+.floor-entry { stroke: var(--primary); stroke-width: 3; }
+.floor-reserved { fill: var(--warning); fill-opacity: 0.15; stroke: var(--warning); }
+.floor-reserved-line { stroke: var(--warning); }
+.floor-unit { cursor: move; }.floor-unit rect { stroke-width: 1.5; }
+.floor-unit text { fill: var(--foreground); pointer-events: none; }
+.floor-valid rect { fill: var(--success); fill-opacity: 0.25; stroke: var(--success); }
+.floor-conflict rect { fill: var(--destructive); fill-opacity: 0.3; stroke: var(--destructive); }
+.floor-review rect { fill: var(--warning); fill-opacity: 0.3; stroke: var(--warning); }
+.floor-selected rect { stroke: var(--foreground); stroke-width: 3; }
+@media(max-width:640px){.floorplan-scene { height: 380px; }}
