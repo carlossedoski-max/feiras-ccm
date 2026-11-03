@@ -4,7 +4,7 @@ import type { FairSummary, Plan } from './model';
 export async function floorplanImage(svg:SVGSVGElement,layout:Layout,units:Unit[],fair:FairSummary,plan:Plan){
  const clone=svg.cloneNode(true) as SVGSVGElement;clone.querySelector('g')?.removeAttribute('transform');
  const originals=svg.querySelectorAll('*'),copies=clone.querySelectorAll('*');
- originals.forEach((el,i)=>{const target=copies[i];if(!target)return;const style=getComputedStyle(el);for(const key of ['fill','stroke','stroke-width','font-family','font-size','font-weight'])target.style.setProperty(key,style.getPropertyValue(key));});
+ originals.forEach((el,i)=>{const target=copies[i];if(!(target instanceof SVGElement))return;const style=getComputedStyle(el);for(const key of ['fill','stroke','stroke-width','font-family','font-size','font-weight'])target.style.setProperty(key,style.getPropertyValue(key));});
  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');clone.setAttribute('width','1400');clone.setAttribute('height','1000');
  const blob=new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml'}),url=URL.createObjectURL(blob),image=new Image();
  try{await new Promise<void>((resolve,reject)=>{image.onload=()=>resolve();image.onerror=()=>reject(new Error('Não foi possível exportar a planta'));image.src=url;});
@@ -16,6 +16,12 @@ export async function floorplanImage(svg:SVGSVGElement,layout:Layout,units:Unit[
 export async function exportFloorplan(svg:SVGSVGElement,layout:Layout,units:Unit[],fair:FairSummary,plan:Plan,format:'png'|'pdf'|'print'){
  const image=await floorplanImage(svg,layout,units,fair,plan);
  if(format==='png'){const a=document.createElement('a');a.href=image;a.download=`planta-${plan.edition_year}.png`;a.click();return;}
- const {jsPDF}=await import('jspdf');const doc=new jsPDF({orientation:'landscape'});doc.addImage(image,'PNG',10,8,277,242);
+ const {jsPDF}=await import('jspdf');const doc=new jsPDF({orientation:'landscape'});doc.addImage(image,'PNG',39,8,219,192);
  if(format==='print'){doc.autoPrint();const url=doc.output('bloburl');window.open(url,'_blank','noopener');}else doc.save(`planta-${plan.edition_year}.pdf`);
+}
+export async function reportFloorplanImage(layout:Layout,units:Unit[],fair:FairSummary,plan:Plan){
+ const [{renderToStaticMarkup},{createElement},{FloorplanScene}]=await Promise.all([import('react-dom/server'),import('react'),import('@/components/equipment/floorplan-scene')]);
+ const holder=document.createElement('div');holder.className='floor-export-holder';
+ holder.innerHTML=renderToStaticMarkup(createElement(FloorplanScene,{layout,units,selected:'',onSelect:()=>{},onMove:()=>{},sceneRef:{current:null},command:{id:0,type:'center'}}));document.body.appendChild(holder);
+ try{const svg=holder.querySelector('svg');if(!svg)throw Error('Planta indisponível');return await floorplanImage(svg,layout,units,fair,plan);}finally{holder.remove();}
 }

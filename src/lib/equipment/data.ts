@@ -40,6 +40,7 @@ export const equipmentTrashQuery=queryOptions({queryKey:['equipment','trash'],qu
 export async function importItems(planId:string,rows:unknown[],filename:string,invalid:number,duplicates:number,merge:boolean) {
  const {data,error}=await supabase.rpc('import_equipment_list',{p_plan_id:planId,p_rows:rows as Database['public']['Functions']['import_equipment_list']['Args']['p_rows'],p_filename:filename,p_invalid:invalid,p_duplicates:duplicates,p_merge:merge});if(error)throw error;return data;
 }
-export async function copyEdition(target:string,source:string,snapshot:unknown) {
- const {error}=await supabase.rpc('copy_equipment_edition',{p_target:target,p_source:source,p_snapshot:snapshot as Database['public']['Functions']['copy_equipment_edition']['Args']['p_snapshot']});if(error)throw error;
+export async function copyEdition(target:string,source:string,snapshot:unknown,copyLayout=false) {
+ const {error}=await supabase.rpc('copy_equipment_edition_layout',{p_target:target,p_source:source,p_copy_layout:copyLayout});if(error)throw error;
 }
+export async function saveFloorplan(planId:string,layout:unknown){const {error}=await supabase.rpc('save_equipment_floorplan',{p_plan_id:planId,p_layout:layout as Database['public']['Functions']['save_equipment_floorplan']['Args']['p_layout']});if(error)throw error;}

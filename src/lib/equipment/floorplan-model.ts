@@ -30,18 +30,19 @@ export function validateLayout(layout:Layout,units:Unit[]){
  }
  const total=c.width*c.depth,standArea=c.standWidth*c.standDepth,reserved=c.reserved.reduce((a,r)=>a+r.width*r.depth,0),circulation=equipmentArea*c.circulationPercent/100,occupied=equipmentArea+reserved+circulation,percent=total>0?occupied/total*100:0;
  const unplaced=units.length-placed-missing;
- const configValid=c.width>0&&c.depth>0&&c.standWidth>=0&&c.standDepth>=0&&c.standWidth<=c.width&&c.standDepth<=c.depth&&c.reserved.every(r=>inside(r,terrain)&&r.width>0&&r.depth>0);
+ const configValid=Object.entries(c).filter(([key])=>key!=='reserved').every(([,v])=>typeof v==='number'&&Number.isFinite(v))&&c.width>0&&c.depth>0&&c.standWidth>=0&&c.standDepth>=0&&c.standWidth<=c.width&&c.standDepth<=c.depth&&c.gap>=0&&c.circulationPercent>=0&&c.entrance>=0&&c.entrance<=c.width&&c.reserved.every((r,i)=>inside(r,terrain)&&r.width>0&&r.depth>0&&!c.reserved.slice(i+1).some(other=>overlaps(r,other)));
  const result=conflicts||percent>100?'NÃO CABE NO ESPAÇO':!configValid||missing||unplaced||review||percent>80?'CABE COM ATENÇÃO':'CABE NO ESPAÇO';
  return {issues,statuses,total,standArea,equipmentArea,reserved,circulation,occupied,free:total-occupied,percent,quantity:units.length,placed,unplaced,missing,conflicts,result,configValid};
 }
 export function autoArrange(layout:Layout,units:Unit[]):Layout{
  const c=layout.config,positions:Record<string,Position>={};
- const areas=[{area:'internal',x:0,y:0,width:c.standWidth,depth:c.standDepth},{area:'external',x:0,y:c.standDepth,width:c.width,depth:c.depth-c.standDepth},{area:'external',x:c.standWidth,y:0,width:c.width-c.standWidth,depth:c.standDepth}];
+ let areas=[{area:'internal',x:0,y:0,width:c.standWidth,depth:c.standDepth},{area:'external',x:0,y:c.standDepth,width:c.width,depth:c.depth-c.standDepth},{area:'external',x:c.standWidth,y:0,width:c.width-c.standWidth,depth:c.standDepth}];
+ for(const obstacle of c.reserved){areas=areas.flatMap(a=>{if(!overlaps(a,obstacle))return [a];const left=Math.max(a.x,obstacle.x),right=Math.min(a.x+a.width,obstacle.x+obstacle.width),top=Math.max(a.y,obstacle.y),bottom=Math.min(a.y+a.depth,obstacle.y+obstacle.depth);return [{...a,depth:top-a.y},{...a,y:bottom,depth:a.y+a.depth-bottom},{...a,y:top,width:left-a.x,depth:bottom-top},{...a,x:right,y:top,width:a.x+a.width-right,depth:bottom-top}].filter(r=>r.width>0&&r.depth>0);});}
  for(const a of areas){if(a.width<=0||a.depth<=0)continue;
   const packer=new MaxRectsPacker(a.width*1000,a.depth*1000,c.gap*1000,{smart:false,pot:false,square:false,allowRotation:true});
   const candidates=units.filter(u=>u.area===a.area&&u.width>0&&u.depth>0&&!positions[u.key]);
   packer.addArray(candidates.map(u=>({width:u.width*1000,height:u.depth*1000,data:u.key})));
-  for(const packed of packer.bins[0]?.rects??[]){const u=candidates.find(u=>u.key===packed.data);if(!u)continue;const p={x:a.x+(packed.x??0)/1000,y:a.y+(packed.y??0)/1000,rotation:packed.rot?90:0,area:u.area};const rect=unitRect(u,p);if(c.reserved.some(r=>overlaps(rect,r)))continue;positions[u.key]=p;}
+  for(const packed of packer.bins[0]?.rects??[]){const u=candidates.find(u=>u.key===packed.data);if(!u)continue;const p={x:a.x+(packed.x??0)/1000,y:a.y+(packed.y??0)/1000,rotation:packed.rot?90:0,area:u.area};const rect=unitRect(u,p);if(!inside(rect,a)||c.reserved.some(r=>overlaps(rect,r))||units.some(other=>{const old=positions[other.key];if(!old)return false;const r=unitRect(other,old);return overlaps({x:rect.x-c.gap/2,y:rect.y-c.gap/2,width:rect.width+c.gap,depth:rect.depth+c.gap},{x:r.x-c.gap/2,y:r.y-c.gap/2,width:r.width+c.gap,depth:r.depth+c.gap});}))continue;positions[u.key]=p;}
  }
  return {...layout,positions};
 }

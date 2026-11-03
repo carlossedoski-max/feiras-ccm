@@ -43,6 +43,13 @@
       "when": 1792756014689,
       "tag": "0005_equipment_floorplan_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793706728042,
+      "tag": "0006_floorplan_config_validation",
+      "breakpoints": true
     }
   ]
 }
