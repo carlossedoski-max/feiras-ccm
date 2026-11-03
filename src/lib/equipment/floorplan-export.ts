@@ -19,3 +19,9 @@ export async function exportFloorplan(svg:SVGSVGElement,layout:Layout,units:Unit
  const {jsPDF}=await import('jspdf');const doc=new jsPDF({orientation:'landscape'});doc.addImage(image,'PNG',39,8,219,192);
  if(format==='print'){doc.autoPrint();const url=doc.output('bloburl');window.open(url,'_blank','noopener');}else doc.save(`planta-${plan.edition_year}.pdf`);
 }
+export async function reportFloorplanImage(layout:Layout,units:Unit[],fair:FairSummary,plan:Plan){
+ const [{renderToStaticMarkup},{createElement},{FloorplanScene}]=await Promise.all([import('react-dom/server'),import('react'),import('@/components/equipment/floorplan-scene')]);
+ const holder=document.createElement('div');holder.className='floor-export-holder';
+ holder.innerHTML=renderToStaticMarkup(createElement(FloorplanScene,{layout,units,selected:'',onSelect:()=>{},onMove:()=>{},sceneRef:{current:null},command:{id:0,type:'center'}}));document.body.appendChild(holder);
+ try{const svg=holder.querySelector('svg');if(!svg)throw Error('Planta indisponível');return await floorplanImage(svg,layout,units,fair,plan);}finally{holder.remove();}
+}

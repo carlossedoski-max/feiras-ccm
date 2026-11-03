@@ -16,7 +16,7 @@ export function Floorplan({plan,items,catalog,fair,onDeleteItem}:{plan:Plan;item
  useEffect(()=>{const handler=(e:BeforeUnloadEvent)=>{if(dirty){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',handler);return()=>window.removeEventListener('beforeunload',handler);},[dirty]);
  function change(fn:(l:Layout)=>Layout){setLayout(fn);setDirty(true);}
  const config=(p:Partial<Config>)=>change(l=>({...l,config:{...l.config,...p}}));
- function move(key:string,x:number,y:number){change(l=>{const u=units.find(u=>u.key===key);if(!u)return l;return {...l,positions:{...l.positions,[key]:{rotation:0,area:u.area,...l.positions[key],x,y}}};});}
+ function move(key:string,x:number,y:number){change(l=>{const u=units.find(u=>u.key===key);if(!u)return l;const old=l.positions[key];return {...l,positions:{...l.positions,[key]:{rotation:old?.rotation??0,area:old?.area??u.area,x,y}}};});}
  function remove(){change(l=>{const positions={...l.positions};delete positions[selected];return {...l,positions};});}
  async function save(){setBusy(true);try{await saveFloorplan(plan.id,layout);setDirty(false);await qc.invalidateQueries({queryKey:['equipment']});toast.success('Planta salva.');}catch(e){toast.error(e instanceof Error?e.message:'Não foi possível salvar.');}finally{setBusy(false);}}
  async function exporting(format:'pdf'|'png'|'print'){if(!svg.current)return;setBusy(true);try{await exportFloorplan(svg.current,layout,units,fair,{...plan,floorplan_updated_at:dirty?new Date().toISOString():plan.floorplan_updated_at},format);}catch(e){toast.error(e instanceof Error?e.message:'Exportação indisponível.');}finally{setBusy(false);}}

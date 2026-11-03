@@ -1,0 +1,18 @@
+import { test, expect } from 'bun:test';
+import { unitsFor, validateLayout, autoArrange, unitRect, type Layout } from './floorplan-model';
+import type { Item, Equipment } from './model';
+const equipment={id:'e',ccm_code:'00-001',length_mm:2000,width_mm:1000} as Equipment;
+const item={id:'i',equipment_id:'e',included:true,quantity:2,location:'Área externa',display_mode:'No chão'} as Item;
+const layout:Layout={version:1,config:{width:10,depth:10,standWidth:10,standDepth:5,gap:0.5,circulationPercent:25,entrance:5,reserved:[]},positions:{}};
+test('10×10 terrain and 10×5 stand give 100, 50 and 50 m²',()=>{const s=validateLayout(layout,[]);expect(s.total).toBe(100);expect(s.standArea).toBe(50);expect(s.total-s.standArea).toBe(50);});
+test('mm convert to metres and each unit gets its own stable key',()=>{const u=unitsFor([item],[equipment]);expect(u.map(x=>x.key)).toEqual(['i:0','i:1']);expect(u[0]?.width).toBe(2);expect(u[0]?.depth).toBe(1);});
+test('rotation swaps rectangle axes',()=>{const u=unitsFor([item],[equipment])[0];if(!u)throw Error('unit missing');expect(unitRect(u,{x:2,y:3,rotation:90,area:'external'})).toEqual({x:2,y:3,width:1,depth:2});});
+test('overlap prevents a fits verdict even with low area occupancy',()=>{const s=validateLayout({...layout,positions:{'i:0':{x:0,y:5,rotation:0,area:'external'},'i:1':{x:1,y:5,rotation:0,area:'external'}}},unitsFor([item],[equipment]));expect(s.result).toBe('NÃO CABE NO ESPAÇO');expect(s.conflicts).toBe(2);expect(s.percent).toBe(5);});
+test('out of bounds is a conflict',()=>{const s=validateLayout({...layout,positions:{'i:0':{x:9,y:5,rotation:0,area:'external'}}},unitsFor([item],[equipment]));expect(s.issues['i:0']).toContain('Fora do terreno');expect(s.result).toBe('NÃO CABE NO ESPAÇO');});
+test('wrong internal/external zone is invalid',()=>{const s=validateLayout({...layout,positions:{'i:0':{x:0,y:0,rotation:0,area:'external'}}},unitsFor([item],[equipment]));expect(s.issues['i:0']).toContain('Área de exposição incorreta');});
+test('missing dimensions never qualify as fits',()=>{const s=validateLayout(layout,unitsFor([item],[{...equipment,width_mm:null}]));expect(s.missing).toBe(2);expect(s.result).toBe('CABE COM ATENÇÃO');});
+test('unplaced units require attention',()=>{expect(validateLayout(layout,unitsFor([item],[equipment])).unplaced).toBe(2);expect(validateLayout(layout,unitsFor([item],[equipment])).result).toBe('CABE COM ATENÇÃO');});
+test('auto arrange respects zones, quantity, circulation and preserves source',()=>{const u=unitsFor([item],[equipment]),arranged=autoArrange(layout,u),s=validateLayout(arranged,u);expect(Object.keys(arranged.positions)).toHaveLength(2);expect(s.conflicts).toBe(0);expect(s.result).toBe('CABE NO ESPAÇO');expect(layout.positions).toEqual({});});
+test('reserved corridor cannot be occupied',()=>{const l={...layout,config:{...layout.config,reserved:[{x:0,y:5,width:1,depth:5}]},positions:{'i:0':{x:0,y:5,rotation:0,area:'external' as const}}};expect(validateLayout(l,unitsFor([item],[equipment])).issues['i:0']).toContain('Ocupa corredor ou área reservada');});
+test('insufficient spacing gives attention',()=>{const l={...layout,positions:{'i:0':{x:0,y:5,rotation:0,area:'external' as const},'i:1':{x:2.1,y:5,rotation:0,area:'external' as const}}};expect(validateLayout(l,unitsFor([item],[equipment])).result).toBe('CABE COM ATENÇÃO');});
+test('removed and excluded units are absent; reduced quantities ignore orphan positions',()=>{const u=unitsFor([{...item,quantity:1},{...item,id:'deleted',deleted_at:'2026-10-23'}],[equipment]);expect(u.map(x=>x.key)).toEqual(['i:0']);});

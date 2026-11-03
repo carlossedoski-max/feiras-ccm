@@ -257,3 +257,4 @@
 .floor-review rect { fill: var(--warning); fill-opacity: 0.3; stroke: var(--warning); }
 .floor-selected rect { stroke: var(--foreground); stroke-width: 3; }
 @media(max-width:640px){.floorplan-scene { height: 380px; }}
+.floor-export-holder { position: fixed; left: -10000px; width: 1400px; }
