@@ -12,8 +12,8 @@
 - [x] Testar regras e fluxos autenticados em computador e celular; não publicar.
 
 ## Planta 2D
-- [ ] Persistir configurações e posições por unidade, com cópia opcional entre edições.
-- [ ] Construir planta em escala, seleção, arraste, giro, zoom e movimentação.
-- [ ] Validar geometria, circulação e dimensões; organizar automaticamente.
-- [ ] Adicionar remoção visual, limpeza, exclusão confirmada e exportações.
-- [ ] Testar regras, salvamento, cópia, exportações e uso em computador/celular sem publicar.
+- [x] Persistir configurações e posições por unidade, com cópia opcional entre edições.
+- [x] Construir planta em escala, seleção, arraste, giro, zoom e movimentação.
+- [x] Validar geometria, circulação e dimensões; organizar automaticamente.
+- [x] Adicionar remoção visual, limpeza, exclusão confirmada e exportações.
+- [x] Testar regras, salvamento, cópia, exportações e uso em computador/celular sem publicar.

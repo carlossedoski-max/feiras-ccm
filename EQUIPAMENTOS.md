@@ -17,8 +17,17 @@
 - Tela conferida em computador e celular, sem transbordamento horizontal da página; tabelas possuem rolagem própria.
 - Dados fictícios usados nos testes foram retirados. Nenhuma publicação automática foi realizada.
 
-## Limite desta entrega
-A planta 2D foi adiada, conforme alternativa autorizada no pedido. Posição e rotação estão preparadas para essa etapa. O módulo calcula áreas; não comprova encaixe físico nem ausência de sobreposições.
+## Planta 2D
+Abra a subaba **Planta 2D** no planejamento. As medidas do terreno e estande são carregadas do planejamento; os ajustes da planta ficam salvos separadamente. O estande fica no canto superior esquerdo e a entrada na borda inferior.
+- Arraste uma unidade da lista ou use **Colocar na planta**. Cada unidade tem posição própria. No celular, coloque pela lista e mova o bloco por toque.
+- Selecione para ajustar X/Y, girar 90° ou remover somente da planta. **Excluir do planejamento** usa a confirmação existente.
+- Configure a margem entre itens, circulação e reservas retangulares. **Organizar automaticamente** tenta encaixar os blocos nas áreas indicadas; itens sem encaixe ficam não posicionados, sem exclusão da lista.
+- **Salvar planta** preserva configurações e posições. Salve antes de trocar de aba ou sair. A cópia de edição anterior oferece a opção de copiar também a planta.
+- Exporte PDF, PNG ou imprima. O PDF completo inclui a planta salva. Limpar remove posições; excluir desenho remove a configuração salva, sem afetar equipamentos ou planejamento.
+- Os resultados usam retângulos, rotações, limites, sobreposição, localização, reservas e circulação. Formas de exposição não no chão exigem conferência. A organização automática é uma tentativa de encaixe, não uma garantia de circulação acessível ou aprovação técnica.
+- 37 testes passaram; salvamento/reabertura, cópia, arraste manual, toque, zoom, confirmações, PNG, PDF e relatório completo foram verificados com sessão autenticada. Dados temporários removidos; não publicado.
+
+## Acesso
 O acesso mantém o padrão atual compartilhado entre usuários autenticados, seguindo a proteção da feira vinculada.
 
 ## Tabelas adicionadas
