@@ -78,3 +78,53 @@ export function removalSuggestions(items: Item[], catalog: Equipment[]) {
  return items.filter(i => i.included && !i.deleted_at && ['Opcional','Complementar'].includes(i.priority)).map(i => ({ item:i, equipment:catalog.find(e => e.id===i.equipment_id), area:itemArea(i,catalog.find(e => e.id===i.equipment_id)) })).sort((a,b) => (a.item.priority==='Opcional'?0:1)-(b.item.priority==='Opcional'?0:1) || (b.area ?? 0)-(a.area ?? 0));
 }
 export const canConfirmDeletion=(value:string)=>value==='EXCLUIR';
+export const PLAN_STATUSES = ['Pronto para planta 2D','Dimensão incompleta','Dimensão da embalagem — não utilizar','Aguardando validação','Erro na importação'] as const;
+export type PlanStatus = typeof PLAN_STATUSES[number];
+/** Short label shown inside the 2D floorplan, derived from the model (e.g. "BCJ 261-L" → "BCJ 261"). */
+export function generatePlanCode(model: string, code: string) {
+ const m = clean(model).toUpperCase().replace(/\(.*?\)/g, '').replace(/\s+-\s+.*$/, '').trim();
+ const match = m.match(/^([A-Z]{1,6})[\s-]*(\d{1,5}(?:[.,]\d+)?)/);
+ if (match) return `${match[1]} ${match[2]}`;
+ if (m) return m.split(/\s+/).slice(0, 2).join(' ').slice(0, 12);
+ return clean(code);
+}
+export const plausibleMm = (n: number | null | undefined) => typeof n === 'number' && Number.isFinite(n) && n >= 20 && n <= 20000;
+export function planStatus(e: Pick<Equipment,'length_mm'|'width_mm'|'height_mm'|'dimension_source'|'packaging_dimensions'|'sync_error'|'model'|'plan_code'|'normalized_code'>): PlanStatus {
+ if (e.sync_error) return 'Erro na importação';
+ const hasLW = e.length_mm != null && e.width_mm != null;
+ if (!hasLW) return e.packaging_dimensions ? 'Dimensão da embalagem — não utilizar' : 'Dimensão incompleta';
+ if (!plausibleMm(e.length_mm) || !plausibleMm(e.width_mm) || (e.height_mm != null && !plausibleMm(e.height_mm)) || !e.dimension_source || !(e.model || e.plan_code) || !e.normalized_code) return 'Aguardando validação';
+ return 'Pronto para planta 2D';
+}
+export const readyForPlan = (e: Parameters<typeof planStatus>[0]) => planStatus(e) === 'Pronto para planta 2D';
+export const dimsLabel = (e: Pick<Equipment,'length_mm'|'width_mm'|'height_mm'>) => e.length_mm == null || e.width_mm == null ? 'Dimensões pendentes' : `${e.length_mm} × ${e.width_mm} × ${e.height_mm ?? '—'} mm`;
+/** Parses "1370 x 600 x 1400 mm" style values into millimetres (C × L × A). Returns null when not three positive numbers with a unit. */
+export function parseDimensions(value: string) {
+ const d = value.match(/(\d+(?:[.,]\d+)?)\s*(?:mm|cm|m)?\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*(?:mm|cm|m)?\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*(mm|cm|m)\b/);
+ if (!d) return null;
+ const f = d[4] === 'cm' ? 10 : d[4] === 'm' ? 1000 : 1, n = (s?: string) => Math.round(Number(s?.replace(',', '.')) * f);
+ return { length_mm: n(d[1]), width_mm: n(d[2]), height_mm: n(d[3]) };
+}
+const EXCLUDED_SUBCATEGORIES = ['acessorios','lubrificantes','kits pulverizacao / lavadoras'];
+const PART_TYPE = /acess[oó]rio|pe[cç]a|reposi[cç]|consum[ií]v|\bkit\b|l[aâ]mina|corrente|sabre|cabe[cç]ote|filtro|vela|carburador|pneu|\broda|cord[aã]o|vestu|prote[cç][aã]o individual|epi\b|[oó]leo|graxa|fio de nylon|carretel/i;
+/** Decides whether an official product is a complete equipment, using official subcategory and "Tipo" first, the name only as backup. */
+export function isCompleteEquipment(subcategories: string[], type: string, name: string) {
+ const subs = subcategories.map(s => header(s).toLowerCase());
+ if (subs.length && subs.every(s => EXCLUDED_SUBCATEGORIES.includes(s))) return false;
+ if (type && PART_TYPE.test(type)) return false;
+ return !/^(acess[oó]rio|kit|pe[cç]a|cord[aã]o|l[aâ]mina|corrente|sabre|filtro|vela|carburador|pneu|roda)\b/i.test(clean(name));
+}
+export type DimensionRow = { line:number; code:string; normalized_code:string; model:string; length_mm:number; width_mm:number; height_mm:number|null; source:string; error?:string };
+export function parseDimensionRows(matrix: unknown[][]): DimensionRow[] {
+ const hi = matrix.findIndex(r => r.some(c => ['COD','CODIGO','COD.'].includes(header(c))));
+ if (hi < 0) throw new Error('Não foi encontrada uma coluna CÓDIGO.');
+ const cols = (matrix[hi] ?? []).map(header), idx = (...n: string[]) => cols.findIndex(h => n.includes(h));
+ const ci = idx('COD','CODIGO','COD.'), mi = idx('MODELO'), li = idx('COMPRIMENTO','C'), wi = idx('LARGURA','L'), ai = idx('ALTURA','A'), ui = idx('UNIDADE'), si = idx('FONTE','FONTE DA INFORMACAO');
+ return matrix.slice(hi + 1).filter(r => r.some(c => clean(c))).map((r, i) => {
+  const unit = clean(r[ui]).toLowerCase() || 'mm', f = unit === 'cm' ? 10 : unit === 'm' ? 1000 : unit === 'mm' ? 1 : NaN;
+  const num = (v: unknown) => { const s = clean(v).replace(',', '.'); return s ? Math.round(Number(s) * f) : null; };
+  const code = clean(r[ci]), L = num(r[li]), W = num(r[wi]), A = num(r[ai]);
+  const error = !normalizeCode(code) ? 'Código inválido' : Number.isNaN(f) ? 'Unidade deve ser mm, cm ou m' : !plausibleMm(L) || !plausibleMm(W) || (A !== null && !plausibleMm(A)) ? 'Medidas devem ser numéricas, positivas e coerentes' : !clean(r[si]) ? 'Informe a fonte da informação' : undefined;
+  return { line: hi + i + 2, code, normalized_code: normalizeCode(code), model: clean(r[mi]), length_mm: L ?? 0, width_mm: W ?? 0, height_mm: A, source: clean(r[si]), error };
+ });
+}
