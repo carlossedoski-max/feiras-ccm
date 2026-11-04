@@ -21,10 +21,13 @@ export type Database = {
           ccm_code: string
           created_at: string
           created_by: string | null
+          dimension_source: string
           dimension_status: string
+          dimensions_manual: boolean
           gross_weight: number | null
           height_mm: number | null
           id: string
+          is_equipment: boolean
           last_checked_at: string | null
           length_mm: number | null
           model: string
@@ -33,10 +36,15 @@ export type Database = {
           normalized_code: string
           notes: string
           official_url: string | null
+          packaging_dimensions: string
           photo_url: string | null
+          plan_code: string
+          plan_code_manual: boolean
           situation: string
           source: string
           specifications: Json
+          subcategory: string
+          sync_error: string
           updated_at: string
           width_mm: number | null
         }
@@ -46,10 +54,13 @@ export type Database = {
           ccm_code: string
           created_at?: string
           created_by?: string | null
+          dimension_source?: string
           dimension_status?: string
+          dimensions_manual?: boolean
           gross_weight?: number | null
           height_mm?: number | null
           id?: string
+          is_equipment?: boolean
           last_checked_at?: string | null
           length_mm?: number | null
           model?: string
@@ -58,10 +69,15 @@ export type Database = {
           normalized_code: string
           notes?: string
           official_url?: string | null
+          packaging_dimensions?: string
           photo_url?: string | null
+          plan_code?: string
+          plan_code_manual?: boolean
           situation?: string
           source?: string
           specifications?: Json
+          subcategory?: string
+          sync_error?: string
           updated_at?: string
           width_mm?: number | null
         }
@@ -71,10 +87,13 @@ export type Database = {
           ccm_code?: string
           created_at?: string
           created_by?: string | null
+          dimension_source?: string
           dimension_status?: string
+          dimensions_manual?: boolean
           gross_weight?: number | null
           height_mm?: number | null
           id?: string
+          is_equipment?: boolean
           last_checked_at?: string | null
           length_mm?: number | null
           model?: string
@@ -83,10 +102,15 @@ export type Database = {
           normalized_code?: string
           notes?: string
           official_url?: string | null
+          packaging_dimensions?: string
           photo_url?: string | null
+          plan_code?: string
+          plan_code_manual?: boolean
           situation?: string
           source?: string
           specifications?: Json
+          subcategory?: string
+          sync_error?: string
           updated_at?: string
           width_mm?: number | null
         }
@@ -768,12 +792,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bulk_update_equipment_dimensions: {
+        Args: { p_rows: Json }
+        Returns: Json
+      }
       copy_equipment_edition: {
         Args: { p_snapshot: Json; p_source: string; p_target: string }
         Returns: number
       }
       copy_equipment_edition_layout: {
         Args: { p_copy_layout?: boolean; p_source: string; p_target: string }
+        Returns: number
+      }
+      deactivate_missing_equipment: {
+        Args: { p_active_codes: string[] }
         Returns: number
       }
       import_equipment_list: {
@@ -795,6 +827,7 @@ export type Database = {
         Args: { p_layout: Json; p_plan_id: string }
         Returns: undefined
       }
+      sync_equipment_catalog: { Args: { p_rows: Json }; Returns: number }
       trash_equipment_items: {
         Args: { p_ids: string[]; p_plan_id: string }
         Returns: number
