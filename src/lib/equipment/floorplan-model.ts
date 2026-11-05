@@ -1,8 +1,8 @@
 import { MaxRectsPacker } from 'maxrects-packer';
 import type { Equipment, Item, Plan } from './model';
 export type Rect={x:number;y:number;width:number;depth:number};
-export type Config={width:number;depth:number;standWidth:number;standDepth:number;gap:number;circulationPercent:number;entrance:number;reserved:Rect[]};
-export type Position={x:number;y:number;rotation:number;area:'internal'|'external'};
+export type Config={width:number;depth:number;standWidth:number;standDepth:number;gap:number;circulationPercent:number;entrance:number;reserved:Rect[];showNumbers?:boolean};
+export type Position={x:number;y:number;rotation:number;area:'internal'|'external';lengthMm?:number;widthMm?:number;label?:string};
 export type Layout={version:1;config:Config;positions:Record<string,Position>};
 export type Unit={key:string;item:Item;equipment?:Equipment;width:number;depth:number;area:'internal'|'external';needsReview:boolean};
 export function defaultLayout(plan:Plan):Layout{return {version:1,config:{width:plan.terrain_width,depth:plan.terrain_depth,standWidth:plan.stand_width,standDepth:plan.stand_depth,gap:0.5,circulationPercent:plan.circulation_percent,entrance:plan.terrain_width/2,reserved:[]},positions:{}};}
@@ -46,3 +46,5 @@ export function autoArrange(layout:Layout,units:Unit[]):Layout{
  }
  return {...layout,positions};
 }
+/** Label drawn on a unit: catalog plan code (or product code), with optional per-unit numbering when the item has several units. */
+export function unitLabel(u:Unit,showNumbers=true){const base=u.equipment?.plan_code||u.equipment?.ccm_code||'';return showNumbers&&u.item.quantity>1?`${base} – ${Number(u.key.split(':')[1])+1}`:base;}
