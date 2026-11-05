@@ -258,3 +258,6 @@
 .floor-selected rect { stroke: var(--foreground); stroke-width: 3; }
 @media(max-width:640px){.floorplan-scene { height: 380px; }}
 .floor-export-holder { position: fixed; left: -10000px; width: 1400px; }
+.floor-unit .floor-code { fill: var(--foreground); font-family: var(--font-sans); font-weight: 700; paint-order: stroke; stroke: var(--card); stroke-width: 2.5px; stroke-linejoin: round; }
+.floor-selected rect { fill: var(--foreground); fill-opacity: 0.88; }
+.floor-selected .floor-code { fill: var(--background); stroke: var(--foreground); }
