@@ -13,8 +13,8 @@ export function parseOfficialProduct(raw:unknown, expectedCode:string, subcatego
  for(const s of p.especificacoes){const label=s.rotulo.toLowerCase(),text=String(s.valores[0]??'');
   if(!label.includes('dimens'))continue;
   if(label.includes('embalag')){packaging=text;continue;}
-  const parsed=parseDimensions(text);if(parsed&&!dims){dims=parsed;source=`Cadastro oficial CCM — campo “${s.rotulo}”`;}}
- if(dims&&!(plausibleMm(dims.length_mm)&&plausibleMm(dims.width_mm)&&plausibleMm(dims.height_mm))){source+=' (verificar coerência)';}
+  const parsed=parseDimensions(text);if(parsed&&!dims){dims=parsed;source=`Cadastro oficial CCM — campo “${s.rotulo}”${parsed.unitless?' (mm)':''}${parsed.height_mm===null?' · somente C × L':''}`;}}
+ if(dims&&!(plausibleMm(dims.length_mm)&&plausibleMm(dims.width_mm)&&(dims.height_mm===null||plausibleMm(dims.height_mm)))){source+=' (verificar coerência)';}
  const number=(s:string)=>{const match=s.match(/\d+(?:[.,]\d+)?/);return match?Number(match[0].replace(',','.')):null;};
  const photo=p.fotos.find(f=>f.url?.startsWith('https://ccmdobrasil.com.br/'))?.url??null;
  const model=value('Modelo'),code=value('Código')||String(p.codigo),normalized=normalizeCode(String(p.codigo));
@@ -40,7 +40,7 @@ export async function dimensionsFromManual(url:string){
  const pdf=await getDocumentProxy(new Uint8Array(buffer));const {text}=await extractText(pdf,{mergePages:true});
  const flat=String(text).replace(/\s+/g,' ');
  const re=/dimens[õo]es[^.:]{0,60}?[:\s]\s*(\d+(?:[.,]\d+)?\s*(?:mm|cm|m)?\s*[x×X]\s*\d+(?:[.,]\d+)?\s*(?:mm|cm|m)?\s*[x×X]\s*\d+(?:[.,]\d+)?\s*(?:mm|cm|m)\b)/gi;
- for(const m of flat.matchAll(re)){const context=flat.slice(Math.max(0,(m.index??0)-40),(m.index??0)+m[0].length).toLowerCase();if(context.includes('embalag')||context.includes('caixa'))continue;const d=parseDimensions(m[1]??'');if(d&&plausibleMm(d.length_mm)&&plausibleMm(d.width_mm)&&plausibleMm(d.height_mm))return d;}
+ for(const m of flat.matchAll(re)){const context=flat.slice(Math.max(0,(m.index??0)-40),(m.index??0)+m[0].length).toLowerCase();if(context.includes('embalag')||context.includes('caixa'))continue;const d=parseDimensions(m[1]??'');if(d&&!d.unitless&&d.height_mm!==null&&plausibleMm(d.length_mm)&&plausibleMm(d.width_mm)&&plausibleMm(d.height_mm))return {length_mm:d.length_mm,width_mm:d.width_mm,height_mm:d.height_mm};}
  return null;
 }
 export interface ProductAdapter { lookup(code:string,subcategories?:string[]):Promise<OfficialRow|null>; listActive():Promise<{code:string;name:string;subcategories:string[]}[]> }
