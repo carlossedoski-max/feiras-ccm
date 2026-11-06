@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Json } from '@/integrations/supabase/types';
 import { normalizeCode, dimensionsStatus, generatePlanCode, isCompleteEquipment, parseDimensions, plausibleMm } from './model';
 const BASE = 'https://ccmdobrasil.com.br/CCM/site';
 const productSchema=z.object({codigo:z.union([z.string(),z.number()]),nome:z.string(),categoria:z.string().nullish(),nomeMarca:z.string().nullish(),descricao:z.string().nullish(),especificacoes:z.array(z.object({rotulo:z.string(),valores:z.array(z.unknown())})).default([]),fotos:z.array(z.object({url:z.string().nullish()})).default([]),apoioImpressos:z.array(z.object({titulo:z.string().nullish(),urlDownload:z.string().nullish()})).nullish()}).passthrough();
@@ -20,7 +21,7 @@ export function parseOfficialProduct(raw:unknown, expectedCode:string, subcatego
  const subs=subcategories.length?subcategories:[p.categoria??''];
  return {ccm_code:code,normalized_code:normalized,name:p.nome,model,brand:p.nomeMarca||(p.nome.includes('KAWASHIMA')?'Kawashima':value('Marca')),category:value('Tipo')||p.categoria||'',subcategory:subs.filter(Boolean).join(', '),
   length_mm:dims?.length_mm??null,width_mm:dims?.width_mm??null,height_mm:dims?.height_mm??null,net_weight:number(value('Peso líquido')),gross_weight:number(value('Peso bruto')),photo_url:photo,
-  specifications:JSON.parse(JSON.stringify({...specs,Descrição:p.descricao??''})) as Record<string,unknown>,dimension_status:dimensionsStatus({length_mm:dims?.length_mm??null,width_mm:dims?.width_mm??null,height_mm:dims?.height_mm??null}),
+  specifications:JSON.parse(JSON.stringify({...specs,Descrição:p.descricao??''})) as Json,dimension_status:dimensionsStatus({length_mm:dims?.length_mm??null,width_mm:dims?.width_mm??null,height_mm:dims?.height_mm??null}),
   dimension_source:source,packaging_dimensions:packaging,plan_code:generatePlanCode(model,code),official_url:`https://ccmdobrasil.com.br/produto/${normalized}`,situation:'Ativo',sync_error:'',
   is_equipment:isCompleteEquipment(subs,value('Tipo'),p.nome),manuals:(p.apoioImpressos??[]).map(m=>m.urlDownload).filter((u):u is string=>!!u&&u.startsWith('https://ccmdobrasil.com.br/'))};
 }
