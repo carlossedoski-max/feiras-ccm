@@ -19,3 +19,5 @@
 - Equipment access follows parent-fair RLS while retaining the existing shared authenticated-team workflow; edition snapshots are assembled in the database rather than trusted from the client.
 - Exclude Bun test files from the app TypeScript program to keep test-runtime globals out of browser and server typings; run the tests independently with Bun.
 - Equipment deletion/recovery uses authenticated security-invoker RPCs and existing tables; a per-item cascade marker distinguishes plan removals from earlier individual removals so restoration preserves intent. Active reads exclude deleted rows and trash reads use a dedicated cache key.
+- Official CCM catalog sync runs in small authenticated server-function batches driven by the client and upserts through a security-invoker RPC that preserves manually corrected dimensions and plan labels, because the official site is slow and manual edits must survive re-syncs.
+- Only catalog rows with confirmed length/width and a recorded dimension source may be placed on the 2D floorplan; readiness is computed in equipment/model.ts so catalog, sync report and floorplan agree.

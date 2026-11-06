@@ -98,19 +98,19 @@ export function planStatus(e: Pick<Equipment,'length_mm'|'width_mm'|'height_mm'|
 }
 export const readyForPlan = (e: Parameters<typeof planStatus>[0]) => planStatus(e) === 'Pronto para planta 2D';
 export const dimsLabel = (e: Pick<Equipment,'length_mm'|'width_mm'|'height_mm'>) => e.length_mm == null || e.width_mm == null ? 'Dimensões pendentes' : `${e.length_mm} × ${e.width_mm} × ${e.height_mm ?? '—'} mm`;
-/** Parses "1370 x 600 x 1400 mm" style values into millimetres (C × L × A). Returns null when not three positive numbers with a unit. */
+/** Parses "1370 x 600 x 1400 mm" (C × L × A) or "2200 x 980 mm (C x L)" into millimetres. The official site states millimetres; values without a unit are read as mm. */
 export function parseDimensions(value: string) {
- const d = value.match(/(\d+(?:[.,]\d+)?)\s*(?:mm|cm|m)?\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*(?:mm|cm|m)?\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*(mm|cm|m)\b/);
+ const d = value.match(/(\d+(?:[.,]\d+)?)\s*(?:mm|cm|m)?\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*(?:mm|cm|m)?(?:\s*[x×X]\s*(\d+(?:[.,]\d+)?))?\s*(mm|cm|m)?\b/);
  if (!d) return null;
- const f = d[4] === 'cm' ? 10 : d[4] === 'm' ? 1000 : 1, n = (s?: string) => Math.round(Number(s?.replace(',', '.')) * f);
- return { length_mm: n(d[1]), width_mm: n(d[2]), height_mm: n(d[3]) };
+ const f = d[4] === 'cm' ? 10 : d[4] === 'm' ? 1000 : 1, n = (s?: string) => s === undefined ? null : Math.round(Number(s.replace(',', '.')) * f);
+ return { length_mm: n(d[1]) as number, width_mm: n(d[2]) as number, height_mm: n(d[3]), unitless: !d[4] };
 }
 const EXCLUDED_SUBCATEGORIES = ['acessorios','lubrificantes','kits pulverizacao / lavadoras'];
 const PART_TYPE = /acess[oó]rio|pe[cç]a|reposi[cç]|consum[ií]v|\bkit\b|l[aâ]mina|corrente|sabre|cabe[cç]ote|filtro|vela|carburador|pneu|\broda|cord[aã]o|vestu|prote[cç][aã]o individual|epi\b|[oó]leo|graxa|fio de nylon|carretel/i;
 /** Decides whether an official product is a complete equipment, using official subcategory and "Tipo" first, the name only as backup. */
 export function isCompleteEquipment(subcategories: string[], type: string, name: string) {
  const subs = subcategories.map(s => header(s).toLowerCase());
- if (subs.length && subs.every(s => EXCLUDED_SUBCATEGORIES.includes(s))) return false;
+ if (subs.some(s => EXCLUDED_SUBCATEGORIES.includes(s))) return false;
  if (type && PART_TYPE.test(type)) return false;
  return !/^(acess[oó]rio|kit|pe[cç]a|cord[aã]o|l[aâ]mina|corrente|sabre|filtro|vela|carburador|pneu|roda)\b/i.test(clean(name));
 }

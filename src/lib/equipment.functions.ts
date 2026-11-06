@@ -20,7 +20,9 @@ export const listOfficialCatalog=createServerFn({method:'POST'}).middleware([req
 export const syncOfficialBatch=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({items:z.array(z.object({code:z.string().regex(/^\d+$/),subcategories:z.array(z.string().max(120)).max(10)})).min(1).max(12)})).handler(async({data,context})=>{
  const {ccmAdapter}=await import('./equipment/ccm-adapter.server');
  const results=await Promise.all(data.items.map(async item=>{try{const row=await ccmAdapter.lookup(item.code,item.subcategories);return row?{code:item.code,row}:{code:item.code,error:'Produto não localizado'};}catch(e){return {code:item.code,error:e instanceof Error?e.message:'Erro na importação'};}}));
- const rows=results.flatMap(r=>'row' in r&&r.row?[(({manuals:_m,...rest})=>rest)(r.row)]:[]);
+ const rows=results.flatMap(r=>'row' in r&&r.row&&r.row.is_equipment?[(({manuals:_m,...rest})=>rest)(r.row)]:[]);
+ const parts=results.flatMap(r=>'row' in r&&r.row&&!r.row.is_equipment?[r.code]:[]);
+ if(parts.length){await context.supabase.from('equipment_catalog').update({is_equipment:false,last_checked_at:new Date().toISOString()}).in('normalized_code',parts);}
  if(rows.length){const {error}=await context.supabase.rpc('sync_equipment_catalog',{p_rows:rows as unknown as Json});if(error)throw new Error(error.message);}
  const failed=results.filter(r=>'error' in r).map(r=>r.code);
  if(failed.length){await context.supabase.from('equipment_catalog').update({sync_error:'Falha ao consultar o site oficial na última sincronização',last_checked_at:new Date().toISOString()}).in('normalized_code',failed);}

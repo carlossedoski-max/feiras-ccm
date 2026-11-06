@@ -58,3 +58,9 @@ O acesso mantém o padrão atual compartilhado entre usuários autenticados, seg
 - `package.json`, `bun.lock`: bibliotecas de importação, exportação e manutenção de segurança.
 - `tsconfig.json`: separação dos testes do programa de tipos da aplicação.
 - `AGENTS.md`: decisões estruturais do módulo.
+## Catálogo oficial CCM e siglas
+- “Sincronizar catálogo CCM” lê todas as subcategorias oficiais, ignora peças/acessórios (subcategoria e campo “Tipo”), atualiza por código sem duplicar e desativa (sem apagar) produtos que saíram do site.
+- Dimensões vêm do campo oficial “Dimensões” (C × L × A, mm); embalagem nunca é usada. Sem medida oficial, tenta o manual PDF oficial. Fonte registrada por produto.
+- Medidas e siglas editadas manualmente não são sobrescritas. “Dimensões por planilha” atualiza medidas em lote pelo código.
+- Status: Pronto para planta 2D, Dimensão incompleta, Dimensão da embalagem — não utilizar, Aguardando validação, Erro na importação. Só itens prontos podem ser colocados na planta.
+- Sigla na planta: gerada do modelo (ex.: BCJ 261-L → BCJ 261), editável; numeração opcional por unidade.
