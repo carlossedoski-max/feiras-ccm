@@ -16,4 +16,5 @@
 - [x] Construir planta em escala, seleção, arraste, giro, zoom e movimentação.
 - [x] Validar geometria, circulação e dimensões; organizar automaticamente.
 - [x] Adicionar remoção visual, limpeza, exclusão confirmada e exportações.
-- [x] Testar regras, salvamento, cópia, exportações e uso em computador/celular sem publicar.
+- [x] Testar regras, salvamento, cópia, exportações e uso em computador/celular sem publicar.- [x] Catálogo CCM: sincronização oficial só de equipamentos completos, dimensões C × L × A com fonte, status para planta, pendências e planilha de dimensões.
+- [x] Sigla na planta: gerada do modelo, editável, centralizada e legível após giro, com numeração opcional.
