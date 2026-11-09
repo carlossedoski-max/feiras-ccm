@@ -13,6 +13,7 @@ export function parseOfficialProduct(raw:unknown, expectedCode:string, subcatego
  for(const s of p.especificacoes){const label=s.rotulo.toLowerCase(),text=String(s.valores[0]??'');
   if(!label.includes('dimens'))continue;
   if(label.includes('embalag')){packaging=text;continue;}
+  if(!/^dimens[õo]es\s*(do produto|do equipamento|montad[oa]|\(.*\))?\s*$/i.test(s.rotulo.trim()))continue;
   const parsed=parseDimensions(text);if(parsed&&!dims){dims=parsed;source=`Cadastro oficial CCM — campo “${s.rotulo}”${parsed.unitless?' (mm)':''}${parsed.height_mm===null?' · somente C × L':''}`;}}
  if(dims&&!(plausibleMm(dims.length_mm)&&plausibleMm(dims.width_mm)&&(dims.height_mm===null||plausibleMm(dims.height_mm)))){source+=' (verificar coerência)';}
  const number=(s:string)=>{const match=s.match(/\d+(?:[.,]\d+)?/);return match?Number(match[0].replace(',','.')):null;};
