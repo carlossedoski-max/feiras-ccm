@@ -25,6 +25,7 @@ export const syncOfficialBatch=createServerFn({method:'POST'}).middleware([requi
  if(parts.length){await context.supabase.from('equipment_catalog').update({is_equipment:false,last_checked_at:new Date().toISOString()}).in('normalized_code',parts);}
  if(rows.length){const {error}=await context.supabase.rpc('sync_equipment_catalog',{p_rows:rows as unknown as Json});if(error)throw new Error(error.message);}
  const failed=results.filter(r=>'error' in r).map(r=>r.code);
+ if(rows.length){await context.supabase.from('equipment_catalog').update({sync_error:''}).in('normalized_code',rows.map(r=>r.normalized_code));}
  if(failed.length){await context.supabase.from('equipment_catalog').update({sync_error:'Falha ao consultar o site oficial na última sincronização',last_checked_at:new Date().toISOString()}).in('normalized_code',failed);}
  return results.map(r=>'row' in r&&r.row?{code:r.code,model:r.row.model,name:r.row.name,is_equipment:r.row.is_equipment,length_mm:r.row.length_mm,width_mm:r.row.width_mm,height_mm:r.row.height_mm,source:r.row.dimension_source,packaging:r.row.packaging_dimensions}:{code:r.code,error:'error' in r?r.error:'Erro'});
 });

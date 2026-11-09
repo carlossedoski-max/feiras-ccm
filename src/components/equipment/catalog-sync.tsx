@@ -31,6 +31,8 @@ export function CatalogSync({ onDone }: { onDone: () => Promise<void> }) {
    for (let i = 0; i < products.length; i += 8) chunks.push(products.slice(i, i + 8));
    const rows: Result[] = []; let done = 0, next = 0;
    await Promise.all(Array.from({ length: 3 }, async () => { while (next < chunks.length) { const chunk = chunks[next++]!; try { rows.push(...await batch({ data: { items: chunk.map(p => ({ code: p.code, subcategories: p.subcategories.slice(0, 10) })) } })); } catch (e) { rows.push(...chunk.map(p => ({ code: p.code, error: e instanceof Error ? e.message : 'Erro na importação' }))); } done += chunk.length; setProgress({ done, total: products.length }); } }));
+   const failed = new Set(rows.filter(r => 'error' in r && r.error).map(r => r.code));
+   if (failed.size) { const retry = products.filter(p => failed.has(p.code)); for (let i = 0; i < retry.length; i += 4) { const chunk = retry.slice(i, i + 4); try { const again = await batch({ data: { items: chunk.map(p => ({ code: p.code, subcategories: p.subcategories.slice(0, 10) })) } }); for (const r of again) { const at = rows.findIndex(x => x.code === r.code); if (at >= 0) rows[at] = r; } } catch { /* keep first error */ } setProgress({ done: products.length, total: products.length }); } }
    const { data: deactivated, error } = await supabase.rpc('deactivate_missing_equipment', { p_active_codes: products.map(p => p.code) });
    if (error) throw error;
    const r = summarize(rows, deactivated ?? 0); localStorage.setItem(REPORT_KEY, JSON.stringify(r)); setReport(r);

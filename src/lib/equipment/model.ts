@@ -90,9 +90,8 @@ export function generatePlanCode(model: string, code: string) {
 }
 export const plausibleMm = (n: number | null | undefined) => typeof n === 'number' && Number.isFinite(n) && n >= 20 && n <= 20000;
 export function planStatus(e: Pick<Equipment,'length_mm'|'width_mm'|'height_mm'|'dimension_source'|'packaging_dimensions'|'sync_error'|'model'|'plan_code'|'normalized_code'>): PlanStatus {
- if (e.sync_error) return 'Erro na importação';
  const hasLW = e.length_mm != null && e.width_mm != null;
- if (!hasLW) return e.packaging_dimensions ? 'Dimensão da embalagem — não utilizar' : 'Dimensão incompleta';
+ if (!hasLW) return e.sync_error ? 'Erro na importação' : e.packaging_dimensions ? 'Dimensão da embalagem — não utilizar' : 'Dimensão incompleta';
  if (!plausibleMm(e.length_mm) || !plausibleMm(e.width_mm) || (e.height_mm != null && !plausibleMm(e.height_mm)) || !e.dimension_source || !(e.model || e.plan_code) || !e.normalized_code) return 'Aguardando validação';
  return 'Pronto para planta 2D';
 }
