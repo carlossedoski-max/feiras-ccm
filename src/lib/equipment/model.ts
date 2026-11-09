@@ -106,13 +106,13 @@ export function parseDimensions(value: string) {
  return { length_mm: n(d[1]) as number, width_mm: n(d[2]) as number, height_mm: n(d[3]), unitless: !d[4] };
 }
 const EXCLUDED_SUBCATEGORIES = ['acessorios','lubrificantes','kits pulverizacao / lavadoras'];
-const PART_TYPE = /acess[oó]rio|pe[cç]a|reposi[cç]|consum[ií]v|\bkit\b|l[aâ]mina|corrente|sabre|cabe[cç]ote|filtro|vela|carburador|pneu|\broda|cord[aã]o|vestu|prote[cç][aã]o individual|epi\b|[oó]leo|graxa|fio de nylon|carretel/i;
+const PART_TYPE = /acess[oó]rio|pe[cç]a|reposi[cç]|consum[ií]v|\bkit\b|l[aâ]mina|corrente|sabre|cabe[cç]ote|filtro|vela|carburador|pneu|\broda|cord[aã]o|vestu|prote[cç][aã]o individual|epi\b|[oó]leo|graxa|fio de nylon|carretel|bon[eé]\b|capacete|luva|[oó]culos|protetor|avental|camis|cinto|vestu/i;
 /** Decides whether an official product is a complete equipment, using official subcategory and "Tipo" first, the name only as backup. */
 export function isCompleteEquipment(subcategories: string[], type: string, name: string) {
  const subs = subcategories.map(s => header(s).toLowerCase());
  if (subs.some(s => EXCLUDED_SUBCATEGORIES.includes(s))) return false;
  if (type && PART_TYPE.test(type)) return false;
- return !/^(acess[oó]rio|kit|pe[cç]a|cord[aã]o|l[aâ]mina|corrente|sabre|filtro|vela|carburador|pneu|roda)\b/i.test(clean(name));
+ return !/^(bon[eé]|capacete|luva|[oó]culos|protetor|cinto|camis|acess[oó]rio|kit|pe[cç]a|cord[aã]o|l[aâ]mina|corrente|sabre|filtro|vela|carburador|pneu|roda)\b/i.test(clean(name));
 }
 export type DimensionRow = { line:number; code:string; normalized_code:string; model:string; length_mm:number; width_mm:number; height_mm:number|null; source:string; error?:string };
 export function parseDimensionRows(matrix: unknown[][]): DimensionRow[] {
