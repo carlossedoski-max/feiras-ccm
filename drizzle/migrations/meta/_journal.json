@@ -64,6 +64,13 @@
       "when": 1794329571963,
       "tag": "0008_team_membership_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794329980456,
+      "tag": "0009_team_storage_policies",
+      "breakpoints": true
     }
   ]
 }
