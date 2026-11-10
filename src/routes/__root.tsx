@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import { LayoutDashboard, CalendarDays, LifeBuoy, LogIn, LogOut, Images, Settings, Package } from "lucide-react";
 
 import appCss from "../styles.css?url";
+import ccmSymbol from "@/assets/ccm-symbol.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuth } from "@/hooks/use-auth";
@@ -72,6 +73,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,
@@ -125,7 +127,9 @@ function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 border-b bg-sidebar text-sidebar-foreground shadow-sm ccm-washi">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground font-black text-sm">CCM</div>
+            <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-md bg-white p-1 ring-1 ring-white/20">
+              <img src={ccmSymbol.url} alt="CCM do Brasil" className="h-full w-full object-contain" />
+            </div>
             <div className="hidden sm:block leading-tight">
               <div className="text-sm font-bold">Feira Control</div>
               <div className="text-[11px] text-sidebar-foreground/60">CCM do Brasil</div>
