@@ -166,6 +166,44 @@ export type Database = {
           },
         ]
       }
+      fair_equipment_floorplan_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          created_by_name: string | null
+          id: string
+          layout: Json
+          name: string
+          plan_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          layout: Json
+          name?: string
+          plan_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          layout?: Json
+          name?: string
+          plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fair_equipment_floorplan_versions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "fair_equipment_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fair_equipment_items: {
         Row: {
           created_at: string
