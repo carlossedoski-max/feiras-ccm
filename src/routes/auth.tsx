@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import ccmLogo from "@/assets/ccm-logo-lockup.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -72,6 +73,7 @@ function AuthPage() {
   return (
     <div className="ccm-fade mx-auto flex max-w-md flex-col justify-center py-8">
       <div className="ccm-hinomaru mb-6 rounded-lg border border-border/60 px-4 py-6 text-center">
+        <img src={ccmLogo.url} alt="CCM do Brasil" className="mx-auto mb-4 h-16 w-auto" />
         <h1 className="text-2xl font-bold">Área de Fornecedores</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Entre com sua conta para acessar o cadastro de fornecedores da equipe.
