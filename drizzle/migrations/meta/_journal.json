@@ -57,6 +57,13 @@
       "when": 1793791935251,
       "tag": "0007_equipment_catalog_sync_and_plan_code",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794329571963,
+      "tag": "0008_team_membership_rls",
+      "breakpoints": true
     }
   ]
 }
